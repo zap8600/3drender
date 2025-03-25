@@ -20,7 +20,7 @@ int HandleDestroy() { return 0; }
 const float fov = 45*DEG2RAD;
 
 // Points for a test cube
-const float vtexs[] = {1, 1, 6,  1, -1, 6,  -1, 1, 6,  -1, -1, 6,  1, 1, 4,  1, -1, 4,  -1, 1, 4,  -1, -1, 4};
+const float vtexs[] = {1, 1, 12,  1, -1, 12,  -1, 1, 12,  -1, -1, 12,  1, 1, 10,  1, -1, 10,  -1, 1, 4,  -1, -1, 10};
 int vtexsp[((sizeof(vtexs) / sizeof(float)) / 3) * 2];
 
 // char output[1760];
