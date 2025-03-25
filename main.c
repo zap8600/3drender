@@ -66,7 +66,7 @@ int main() {
 
             int xp = (int)(((xndc + 1)/2)*width);
             int yp = (int)(height-(((yndc + 1)/2)*height));
-            printf("Vertex %d\nxp: %d\nyp: %d\n\n", i + 1, xp, yp);
+            printf("Vertex %d\nxp: %d\nyp: %d\n\n", (i / 3) + 1, xp, yp);
 
             CNFGTackPixel(xp, yp);
         }
