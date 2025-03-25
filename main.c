@@ -17,7 +17,7 @@ int HandleDestroy() { return 0; }
 #define DEG2RAD (PI/180.0f)
 
 // 45 degrees
-const float fov = 60*DEG2RAD;
+const float fov = 90*DEG2RAD;
 
 // Points for a test cube
 const float vtexs[24] = {1, 1, 1,  1, -1, 1,  -1, 1, 1,  -1, -1, 1,  1, 1, -1,  1, -1, -1,  -1, 1, -1,  -1, -1,-1};
