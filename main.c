@@ -20,8 +20,8 @@ int HandleDestroy() { return 0; }
 const float fov = 60*DEG2RAD;
 
 // Points for a test cube
-const float vtexs[] = {1, 1, 12,  1, -1, 12,  -1, 1, 12,  -1, -1, 12,  1, 1, 10,  1, -1, 10,  -1, 1, 4,  -1, -1, 10};
-int vtexsp[((sizeof(vtexs) / sizeof(float)) / 3) * 2];
+const float vtexs[24] = {1, 1, 12,  1, -1, 12,  -1, 1, 12,  -1, -1, 12,  1, 1, 10,  1, -1, 10,  -1, 1, 4,  -1, -1, 10};
+int vtexsp[16];
 
 // char output[1760];
 
@@ -50,7 +50,7 @@ int main() {
         CNFGColor(0xffffffff);
 
         // Compute pixel coordinates of the points
-        for(int i = 0; i < (sizeof(vtexs) / sizeof(float)); i += 3) {
+        for(int i = 0; i < 24; i += 3) {
             float vtexx = vtexs[i];
             float vtexy = vtexs[i + 1];
             float vtexz = vtexs[i + 2];
@@ -73,7 +73,7 @@ int main() {
             vtexsp[(i / 3) + 1] = yp;
         }
 
-        for(int i = 0; i < (sizeof(vtexsp) / sizeof(float)); i += 4) {
+        for(int i = 0; i < 16; i += 4) {
             CNFGTackSegment(vtexsp[i], vtexsp[i+1], vtexsp[i+2], vtexsp[i+3]);
         }
 
