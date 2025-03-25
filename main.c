@@ -68,7 +68,7 @@ int main() {
             int xp = (int)(((xndc + 1) * width) / 2);
             int yp = (int)(((1 - yndc) * height) / 2);
 
-            // printf("Vertex %d\nxndc: %f\nyndc: %f\nxp: %d\nyp: %d\n\n", (i / 3) + 1, xndc, yndc, xp, yp);
+            printf("Vertex %d\nxndc: %f\nyndc: %f\nxp: %d\nyp: %d\n\n", (i / 3) + 1, xndc, yndc, xp, yp);
 
             //vtexsp[i / 3] = xp;
             //vtexsp[(i / 3) + 1] = yp;
