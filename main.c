@@ -17,7 +17,7 @@ int HandleDestroy() { return 0; }
 #define DEG2RAD (PI/180.0f)
 
 // 45 degrees
-const float fov = 120*DEG2RAD;
+const float fov = 60*DEG2RAD;
 
 // Points for a test cube
 const float vtexs[24] = {1, 1, 1,  1, -1, 1,  -1, 1, 1,  -1, -1, 1,  1, 1, -1,  1, -1, -1,  -1, 1, -1,  -1, -1,-1};
@@ -54,13 +54,13 @@ int main() {
         for(int i = 0; i < 24; i += 3) {
             float vtexx = vtexs[i];
             float vtexy = vtexs[i + 1];
-            float vtexz = vtexs[i + 2];
+            float vtexz = vtexs[i + 2] + 5;
             float w = 1;
 
             vtexx *= atf;
             vtexy *= tf;
             vtexz = (vtexz * fnnf) + (w * -1);
-            w = vtexs[i + 2] * fnnf2;
+            w = (vtexs[i + 2] + 5) * fnnf2;
 
             float xndc = vtexx/w;
             float yndc = vtexy/w;
