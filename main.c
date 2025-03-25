@@ -33,7 +33,7 @@ int main() {
     const float width = 1024;
     const float height = 768;
 
-    const float aspect = 1; // width/height;
+    const float aspect = width/height;
 
     const float zn = 0.1;
     const float zf = 100;
@@ -41,7 +41,7 @@ int main() {
     const float atf = 1/(atf-tanf(fov/2));
     const float tf = 1/tanf(fov/2);
     const float fnnf = (zf+zn)/(zn-zf);
-    const float fnnf2 = (2*zf*zn)/(zn-zf);
+    const float fnnf2 = ((2*zf)*zn)/(zn-zf);
 
     CNFGSetup("3D renderer", 1024, 768);
 
