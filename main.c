@@ -66,13 +66,9 @@ int main() {
 
             int xp = (int)(((xndc + 1)/2)*width);
             int yp = (int)(height-(((yndc + 1)/2)*height));
+            printf("Vertex %d\nxp: %d\nyp: %d\n\n", i + 1, xp, yp);
 
-            vtexsp[i / 3] = xp;
-            vtexsp[(i / 3) + 1] = yp;
-        }
-
-        for(int i = 0; i < (sizeof(vtexsp) / sizeof(float)); i += 2) {
-            CNFGTackPixel(vtexsp[i], vtexsp[i+1]);
+            CNFGTackPixel(xp, yp);
         }
 
         CNFGSwapBuffers();
