@@ -31,8 +31,8 @@ int main() {
     const float width = (float)atoi(argv[1]); 
     const float height = (float)atoi(argv[2]);
     */
-    const float width = 1024;
-    const float height = 768;
+    const float width = 512;
+    const float height = 512;
 
     const float aspect = width/height;
 
@@ -44,7 +44,7 @@ int main() {
     const float fnnf = (zf+zn)/(zn-zf);
     const float fnnf2 = ((2*zf)*zn)/(zn-zf);
 
-    CNFGSetup("3D renderer", 1024, 768);
+    CNFGSetup("3D renderer", (int)width, (int)height);
 
     while(CNFGHandleInput()) {
         CNFGClearFrame();
