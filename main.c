@@ -58,7 +58,7 @@ int main() {
 
             vtexx *= atf;
             vtexy *= tf;
-            vtexy = (vtexz * fnnf) + (w * -1);
+            vtexz = (vtexz * fnnf) + (w * -1);
             w = vtexs[i + 2] * fnnf2;
 
             float xndc = vtexx/w;
