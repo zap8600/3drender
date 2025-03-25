@@ -21,7 +21,7 @@ const float fov = 60*DEG2RAD;
 
 // Points for a test cube
 const float vtexs[] = {1, 1, 6,  1, -1, 6,  -1, 1, 6,  -1, -1, 6,  1, 1, 4,  1, -1, 4,  -1, 1, 4,  -1, -1, 4};
-int vtexsp[((sizeof(vtexts) / sizeof(float)) / 3) * 2];
+int vtexsp[((sizeof(vtexs) / sizeof(float)) / 3) * 2];
 
 // char output[1760];
 
@@ -39,7 +39,7 @@ int main() {
     const float zf = 100;
 
     const float atf = 1/(atf-tanf(fov/2));
-    const float = 1/tanf(fov/2);
+    const float tf = 1/tanf(fov/2);
     const float fnnf = (zf+zn)/(zn-zf);
     const float fnnf2 = (2*zf*zn)/(zn-zf);
 
