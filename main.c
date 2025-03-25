@@ -20,7 +20,8 @@ int HandleDestroy() { return 0; }
 const float fov = 60*DEG2RAD;
 
 // Points for a test cube
-const float vtexs[24] = {1, 1, 12,  1, -1, 12,  -1, 1, 12,  -1, -1, 12,  1, 1, 10,  1, -1, 10,  -1, 1, 4,  -1, -1, 10};
+const float vtexs[24] = {1, 1, 1,  1, -1, 1,  -1, 1, 1,  -1, -1, 1,  1, 1, -1,  1, -1, -1,  -1, 1, -1,  -1, -1,-1};
+const int vtexscon[24] = {1, 2, 4,  0, 3, 5,  0, 3, 6,  2, 1, 7,  0, 5, 6,  4, 1, 7,  2, 7, 4,  3, 6, 5};
 int vtexsp[16];
 
 // char output[1760];
@@ -73,8 +74,10 @@ int main() {
             vtexsp[(i / 3) + 1] = yp;
         }
 
-        for(int i = 0; i < 16; i += 4) {
-            CNFGTackSegment(vtexsp[i], vtexsp[i+1], vtexsp[i+2], vtexsp[i+3]);
+        for(int i = 0; i < 8; i++) {
+            CNFGTackSegment(vtexsp[i * 2], vtexsp[(i * 2) + 1], vtexsp[(vtexscon[i * 3]) * 2], vtexsp[((vtexscon[i * 3]) * 2) + 1]);
+            CNFGTackSegment(vtexsp[i * 2], vtexsp[(i * 2) + 1], vtexsp[(vtexscon[i * 3] + 1) * 2], vtexsp[((vtexscon[i * 3] + 1) * 2) + 1]);
+            CNFGTackSegment(vtexsp[i * 2], vtexsp[(i * 2) + 1], vtexsp[(vtexscon[i * 3] + 2) * 2], vtexsp[((vtexscon[i * 3] + 2) * 2) + 1]);
         }
 
         CNFGSwapBuffers();
