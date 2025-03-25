@@ -64,8 +64,8 @@ int main() {
             float xndc = vtexx/w;
             float yndc = vtexy/w;
 
-            int xp = (int)(((xndc + 1)/2)*(width / 2));
-            int yp = (int)(((1 - yndc)/2)*(height/2));
+            int xp = (int)(((xndc + 1) * width) / 2);
+            int yp = (int)(((1 - yndc) * height) / 2);
 
             printf("Vertex %d\nxndc: %f\nyndc: %f\nxp: %d\nyp: %d\n\n", (i / 3) + 1, xndc, yndc, xp, yp);
 
