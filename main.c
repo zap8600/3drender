@@ -33,7 +33,7 @@ int main() {
     const float width = 1024;
     const float height = 768;
 
-    const float aspect = width/height;
+    const float aspect = 1; // width/height;
 
     const float zn = 0.1;
     const float zf = 100;
