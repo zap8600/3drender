@@ -64,10 +64,10 @@ int main() {
             float xndc = vtexx/w;
             float yndc = vtexy/w;
 
-            printf("Vertex %d\nxndc: %d\nyndc: %d\n\n", (i / 3) + 1, xndc, yndc);
-
             int xp = (int)(((xndc + 1)/2)*width);
             int yp = (int)(1-(((yndc + 1)/2)*height));
+
+            printf("Vertex %d\nxndc: %d\nyndc: %d\nxp: %d\nyp: %d\n\n", (i / 3) + 1, xndc, yndc, xp, yp);
 
             vtexsp[i / 3] = xp;
             vtexsp[(i / 3) + 1] = yp;
