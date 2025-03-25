@@ -16,8 +16,7 @@ int HandleDestroy() { return 0; }
 #define PI 3.14159265358979323846f
 #define DEG2RAD (PI/180.0f)
 
-// 60 degrees
-const float fov = 60*DEG2RAD;
+const float fov = 45*DEG2RAD;
 
 // Points for a test cube
 const float vtexs[] = {1, 1, 6,  1, -1, 6,  -1, 1, 6,  -1, -1, 6,  1, 1, 4,  1, -1, 4,  -1, 1, 4,  -1, -1, 4};
@@ -65,8 +64,8 @@ int main() {
             float yndc = vtexy/w;
 
             int xp = (int)(((xndc + 1)/2)*width);
-            int yp = (int)(height-(((yndc + 1)/2)*height));
-            printf("Vertex %d\nxp: %d\nyp: %d\n\n", (i / 3) + 1, xp, yp);
+            int yp = (int)(1-(((yndc + 1)/2)*height));
+            printf("Vertex %d\nxp: %d\nyp: %d\n\n", (i / 3) + 1, xp, -(yp));
 
             CNFGTackPixel(xp, yp);
         }
