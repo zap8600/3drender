@@ -54,13 +54,13 @@ int main() {
         for(int i = 0; i < 24; i += 3) {
             float vtexx = vtexs[i];
             float vtexy = vtexs[i + 1];
-            float vtexz = vtexs[i + 2] + 5;
+            float vtexz = vtexs[i + 2] + 10;
             float w = 1;
 
             vtexx *= atf;
             vtexy *= tf;
             vtexz = (vtexz * fnnf) + (w * -1);
-            w = (vtexs[i + 2] + 5) * fnnf2;
+            w = (vtexs[i + 2] + 10) * fnnf2;
 
             float xndc = vtexx/w;
             float yndc = vtexy/w;
