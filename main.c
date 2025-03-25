@@ -71,8 +71,8 @@ int main() {
             vtexsp[(i / 3) + 1] = yp;
         }
 
-        for(int i = 0; i < (sizeof(vtexsp) / sizeof(float)); i += 4) {
-            CNFGTackSegment(vtexsp[i], vtexsp[i+1], vtexsp[i+2], vtexsp[i+3]);
+        for(int i = 0; i < (sizeof(vtexsp) / sizeof(float)); i += 2) {
+            CNFGTackPixel(vtexsp[i], vtexsp[i+1]);
         }
 
         CNFGSwapBuffers();
