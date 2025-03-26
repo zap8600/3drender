@@ -96,13 +96,13 @@ int main(int argc, char **argv) {
             for(int j = 0; j < 3; j++) {
                 float vtexx = vtexs[((faces[i + j]) * 3)];
                 float vtexy = vtexs[((faces[i + j]) * 3) + 1];
-                float vtexz = vtexs[((faces[i + j]) * 3) + 2] + zoff;
+                float vtexz = vtexs[((faces[i + j]) * 3) + 2];
                 float w = 1;
 
                 vtexx *= atf;
                 vtexy *= tf;
                 vtexz = (vtexz * fnnf) + (w * -1);
-                w = (vtexs[((faces[i + j]) * 3) + 2] + zoff) * fnnf2;
+                w = (vtexs[((faces[i + j]) * 3) + 2]) * fnnf2;
 
                 float xndc = vtexx/w;
                 float yndc = vtexy/w;
