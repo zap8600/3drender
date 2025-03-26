@@ -17,7 +17,7 @@ int HandleDestroy() { return 0; }
 #define DEG2RAD (PI/180.0f)
 
 // 45 degrees
-const float fov = 60*DEG2RAD;
+const float fov = 45*DEG2RAD;
 
 // Points for a test cube
 const float vtexs[24] = {1, 1, 1,  1, -1, 1,  -1, 1, 1,  -1, -1, 1,  1, 1, -1,  1, -1, -1,  -1, 1, -1,  -1, -1,-1};
@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
 
     const float aspect = width/height; // 1
 
-    const float zn = 0.1;
+    const float zn = 1;
     const float zf = 100;
 
     const float atf = 1/(aspect-tanf(fov/2));
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
             for(int j = 0; j < 3; j++) {
                 float vtexx = vtexs[(faces[i + j])];
                 float vtexy = vtexs[(faces[i + j]) + 1];
-                float vtexz = vtexs[(faces[i + j]) + 2] + 10;
+                float vtexz = vtexs[(faces[i + j]) + 2] + 3;
                 float w = 1;
 
                 vtexx *= atf;
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
                 int xp = (int)(((xndc + 1) * width) / 2);
                 int yp = (int)(((1 - yndc) * height) / 2);
 
-                printf("Face %d Vertex %d\nxp: %d\nyp: %d\n\n", i / 3, j, xp, yp);
+                printf("Face %d Vertex %d\nxp: %d\nyp: %d\n\n", (i / 3) + 1, j + 1, xp, yp);
 
                 xps[j] = xp;
                 yps[j] = yp;
