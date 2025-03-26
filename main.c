@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
             for(int j = 0; j < 3; j++) {
                 float vtexx = vtexs[(faces[i + j])];
                 float vtexy = vtexs[(faces[i + j]) + 1];
-                float vtexz = vtexs[(faces[i + j]) + 2] + 3;
+                float vtexz = vtexs[(faces[i + j]) + 2] + 5;
                 float w = 1;
 
                 vtexx *= atf;
