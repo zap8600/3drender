@@ -71,6 +71,8 @@ int main(int argc, char **argv) {
                 int xp = (int)(((xndc + 1) * width) / 2);
                 int yp = (int)(((1 - yndc) * height) / 2);
 
+                printf("Face %d Vertex %d\nxp: %d\nyp: %d\n\n", i / 3, j, xp, yp);
+
                 xps[j] = xp;
                 yps[j] = yp;
             }
