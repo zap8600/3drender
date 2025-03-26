@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
     const float aspect = width/height; // 1
 
     const float zn = 1;
-    const float zf = 100;
+    const float zf = 10;
 
     const float atf = 1/(aspect-tanf(fov/2));
     const float tf = 1/tanf(fov/2);
