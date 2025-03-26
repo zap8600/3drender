@@ -40,8 +40,6 @@ int main(int argc, char **argv) {
 
     const float aspect = width/height; // 1
 
-    const float zoff = 3;
-
     const float zn = 1;
     const float zf = 10;
 
