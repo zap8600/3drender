@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 #include <math.h>
 
 // printf("\x1b[2J");
@@ -49,13 +50,6 @@ void rotz(float* in, float* out, float rad) {
     out[2] = in[2];
 }
 
-// Move a vertex along specified axes
-void trans(float* in, float* out, float* tv) {
-    out[0] = in[0] + (in[2] * -(tv[0]));
-    out[1] = in[1] + (in[2] * -(tv[1]));
-    out[2] = in[2] + (in[2]);
-}
-
 
 int main(int argc, char **argv) {
     float zoff = 3;
@@ -81,9 +75,23 @@ int main(int argc, char **argv) {
 
     CNFGSetup("3D Renderer", (int)width, (int)height);
 
+    float lastframetime = 0;
+
     while(CNFGHandleInput()) {
+        clock_t startofframe = clock();
+
         CNFGClearFrame();
         CNFGColor(0xffffffff);
+
+        // Rotate the cube around the y axis 90 degrees per second
+        // This is done by manually rotating each vertex
+        for(int i = 0; i < 24; i += 3) {
+            float nvtex[3];
+            roty(&(vtexs[i]), &(nvtex[0]), lastframetime*(90*DEG2RAD));
+            vtexs[i] = nvtex[0];
+            vtexs[i+1] = nvtex[1];
+            vtexs[i+2] = nvtex[2];
+        }
 
         // Compute pixel coordinates of the points and draw lines
         for(int i = 0; i < 36; i += 3) {
@@ -154,6 +162,9 @@ int main(int argc, char **argv) {
         */
 
         CNFGSwapBuffers();
+
+        clock_t endofframe = clock();
+        lastframetime = ((float)(endofframe - startofframe)) / ((float)CLOCKS_PER_SEC);
     }
 
     return 0;
