@@ -4,8 +4,6 @@
 #include <time.h>
 #include <math.h>
 
-// printf("\x1b[2J");
-
 #define CNFG_IMPLEMENTATION
 #include "rawdraw_sf.h"
 
@@ -23,8 +21,8 @@ const float fov = 45*DEG2RAD;
 
 
 // Points for a test cube
-float vtexs[24] = {1, 1, 1,  1, -1, 1,  -1, 1, 1,  -1, -1, 1,  1, 1, -1,  1, -1, -1,  -1, 1, -1,  -1, -1,-1};
-const int faces[36] = {0, 1, 5,  0, 5, 4,  4, 5, 7,  4, 6, 5,  6, 7, 3,  6, 2, 3,  2, 3, 1,  2, 0, 1,  2, 4, 6,  2, 0, 6,  1, 3, 5,  3, 5, 7};
+float vtexs[24] = {1, 1, 4,  1, -1, 4,  -1, 1, 4,  -1, -1, 4,  1, 1, 2,  1, -1, 2,  -1, 1, 2,  -1, -1, 2};
+const int faces[36] = {0, 1, 5,  0, 5, 4,  4, 5, 7,  4, 6, 7,  6, 7, 3,  6, 2, 3,  2, 3, 1,  2, 0, 1,  2, 4, 6,  2, 0, 4,  1, 3, 5,  3, 5, 7};
 
 
 // Functions for manipulating 3D objects
@@ -52,10 +50,6 @@ void rotz(float* in, float* out, float rad) {
 
 
 int main(int argc, char **argv) {
-    float zoff = 3;
-    if(argc == 2) {
-        zoff = (float)atof(argv[1]); 
-    }
     /*
     const float width = (float)atoi(argv[1]); 
     const float height = (float)atoi(argv[2]);
@@ -84,7 +78,8 @@ int main(int argc, char **argv) {
         CNFGColor(0xffffffff);
 
         // Rotate the cube around the y axis 90 degrees per second
-        // This is done by manually rotating each vertex
+        // Time is tracked by measuring how long the last frame was
+        // Will not rotate when the window is being moved
         for(int i = 0; i < 24; i += 3) {
             float nvtex[3];
             roty(&(vtexs[i]), &(nvtex[0]), lastframetime*(90*DEG2RAD));
@@ -115,8 +110,6 @@ int main(int argc, char **argv) {
                 int xp = (int)(((xndc + 1) * width) / 2);
                 int yp = (int)(((1 - yndc) * height) / 2);
 
-                //printf("Face %d Vertex %d\nxp: %d\nyp: %d\n\n", (i / 3) + 1, j + 1, xp, yp);
-
                 xps[j] = xp;
                 yps[j] = yp;
             }
@@ -125,41 +118,6 @@ int main(int argc, char **argv) {
             CNFGTackSegment(xps[1], yps[1], xps[2], yps[2]);
             CNFGTackSegment(xps[2], yps[2], xps[0], yps[0]);
         }
-        /*
-        for(int i = 0; i < 24; i += 3) {
-            float vtexx = vtexs[i];
-            float vtexy = vtexs[i + 1];
-            float vtexz = vtexs[i + 2] + 10;
-            float w = 1;
-
-            vtexx *= atf;
-            vtexy *= tf;
-            vtexz = (vtexz * fnnf) + (w * -1);
-            w = (vtexs[i + 2] + 10) * fnnf2;
-
-            float xndc = vtexx/w;
-            float yndc = vtexy/w;
-
-            int xp = (int)(((xndc + 1) * width) / 2);
-            int yp = (int)(((1 - yndc) * height) / 2);
-
-            //printf("Vertex %d\nxndc: %f\nyndc: %f\nxp: %d\nyp: %d\n\n", (i / 3) + 1, xndc, yndc, xp, yp);
-
-            //vtexsp[i / 3] = xp;
-            //vtexsp[(i / 3) + 1] = yp;
-            CNFGTackPixel(xp, yp);
-        }
-        */
-
-        /*
-        for(int i = 0; i < 8; i++) {
-            CNFGTackSegment(vtexsp[i * 2], vtexsp[(i * 2) + 1], vtexsp[(vtexscon[i * 3]) * 2], vtexsp[((vtexscon[i * 3]) * 2) + 1]);
-            CNFGTackSegment(vtexsp[i * 2], vtexsp[(i * 2) + 1], vtexsp[(vtexscon[(i * 3) + 1]) * 2], vtexsp[((vtexscon[(i * 3) + 1]) * 2) + 1]);
-            CNFGTackSegment(vtexsp[i * 2], vtexsp[(i * 2) + 1], vtexsp[(vtexscon[(i * 3) + 2]) * 2], vtexsp[((vtexscon[(i * 3) + 2]) * 2) + 1]);
-            
-            CNFGTackPixel(vtexsp[i * 2], vtexsp[(i * 2) + 1]);
-        }
-        */
 
         CNFGSwapBuffers();
 
