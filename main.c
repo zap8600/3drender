@@ -21,9 +21,11 @@ const float fov = 45*DEG2RAD;
 
 
 // Points for a test cube
-float vtexs[24] = {1, 1, 4,  1, -1, 4,  -1, 1, 4,  -1, -1, 4,  1, 1, 2,  1, -1, 2,  -1, 1, 2,  -1, -1, 2};
+float vtexs[24] = {1, 1, 1,  1, -1, 1,  -1, 1, 1,  -1, -1, 1,  1, 1, -1,  1, -1, -1,  -1, 1, -1,  -1, -1, -1};
+// Faces of the cube
 const int faces[36] = {0, 1, 5,  0, 5, 4,  4, 5, 7,  4, 6, 7,  6, 7, 3,  6, 2, 3,  2, 3, 1,  2, 0, 1,  2, 4, 6,  2, 0, 4,  1, 3, 5,  3, 5, 7};
-
+// Position of the center of the cube
+float cubepos[3] = {0, 0, 3};
 
 // Functions for manipulating 3D objects
 
@@ -94,15 +96,15 @@ int main(int argc, char **argv) {
             int yps[3];
 
             for(int j = 0; j < 3; j++) {
-                float vtexx = vtexs[((faces[i + j]) * 3)];
-                float vtexy = vtexs[((faces[i + j]) * 3) + 1];
-                float vtexz = vtexs[((faces[i + j]) * 3) + 2];
+                float vtexx = vtexs[((faces[i + j]) * 3)] + cubepos[0];
+                float vtexy = vtexs[((faces[i + j]) * 3) + 1] + cubepos[1];
+                float vtexz = vtexs[((faces[i + j]) * 3) + 2] + cubepos[2];
                 float w = 1;
 
                 vtexx *= atf;
                 vtexy *= tf;
                 vtexz = (vtexz * fnnf) + (w * -1);
-                w = (vtexs[((faces[i + j]) * 3) + 2]) * fnnf2;
+                w = (vtexs[((faces[i + j]) * 3) + 2] + cubepos[2]) * fnnf2;
 
                 float xndc = vtexx/w;
                 float yndc = vtexy/w;
