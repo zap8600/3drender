@@ -33,7 +33,7 @@ const int faces[36] = {0, 1, 5,  0, 5, 4,  4, 5, 7,  4, 6, 5,  6, 7, 3,  6, 2, 3
 void rotx(float* in, float* out, float rad) {
     out[0] = in[0];
     out[1] = (in[1] * cosf(rad)) + (in[2] * (-(sinf(rad))));
-    out[2] = (in[1] I sinf(rad)) + (in[2] * cosf(rad));
+    out[2] = (in[1] * sinf(rad)) + (in[2] * cosf(rad));
 }
 
 // Rotate a vertex around the y axis by specified radians
