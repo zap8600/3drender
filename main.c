@@ -25,7 +25,7 @@ const int faces[36] = {0, 1, 5,  0, 5, 4,  4, 5, 7,  4, 6, 5,  6, 7, 3,  6, 2, 3
 
 // char output[1760];
 
-int main() {
+int main(int argc, char **argv) {
     /*
     const float width = (float)atoi(argv[1]); 
     const float height = (float)atoi(argv[2]);
@@ -33,12 +33,12 @@ int main() {
     const float width = 512;
     const float height = 512;
 
-    const float aspect = width/height;
+    const float aspect = width/height; // 1
 
     const float zn = 0.1;
     const float zf = 100;
 
-    const float atf = 1/(atf-tanf(fov/2));
+    const float atf = 1/(aspect-tanf(fov/2));
     const float tf = 1/tanf(fov/2);
     const float fnnf = (zf+zn)/(zn-zf);
     const float fnnf2 = ((2*zf)*zn)/(zn-zf);
@@ -72,7 +72,7 @@ int main() {
                 int yp = (int)(((1 - yndc) * height) / 2);
 
                 xps[j] = xp;
-                ypd[j] = yp;
+                yps[j] = yp;
             }
 
             CNFGTackSegment(xps[0], yps[0], xps[1], yps[1]);
@@ -107,7 +107,6 @@ int main() {
 
         /*
         for(int i = 0; i < 8; i++) {
-            /*
             CNFGTackSegment(vtexsp[i * 2], vtexsp[(i * 2) + 1], vtexsp[(vtexscon[i * 3]) * 2], vtexsp[((vtexscon[i * 3]) * 2) + 1]);
             CNFGTackSegment(vtexsp[i * 2], vtexsp[(i * 2) + 1], vtexsp[(vtexscon[(i * 3) + 1]) * 2], vtexsp[((vtexscon[(i * 3) + 1]) * 2) + 1]);
             CNFGTackSegment(vtexsp[i * 2], vtexsp[(i * 2) + 1], vtexsp[(vtexscon[(i * 3) + 2]) * 2], vtexsp[((vtexscon[(i * 3) + 2]) * 2) + 1]);
