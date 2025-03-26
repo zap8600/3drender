@@ -13,20 +13,24 @@ void HandleButton( int x, int y, int button, int bDown ) { }
 void HandleMotion( int x, int y, int mask ) { }
 int HandleDestroy() { return 0; }
 
+
 #define PI 3.14159265358979323846f
 #define DEG2RAD (PI/180.0f)
 
 // 45 degrees
 const float fov = 45*DEG2RAD;
 
+
 // Points for a test cube
 const float vtexs[24] = {1, 1, 1,  1, -1, 1,  -1, 1, 1,  -1, -1, 1,  1, 1, -1,  1, -1, -1,  -1, 1, -1,  -1, -1,-1};
 const int faces[36] = {0, 1, 5,  0, 5, 4,  4, 5, 7,  4, 6, 5,  6, 7, 3,  6, 2, 3,  2, 3, 1,  2, 0, 1,  2, 4, 6,  2, 0, 6,  1, 3, 5,  3, 5, 7};
 
-// char output[1760];
-const float zoff = 5;
 
 int main(int argc, char **argv) {
+    float zoff = 3;
+    if(argc == 2) {
+        zoff = (float)atof(argv[1]); 
+    }
     /*
     const float width = (float)atoi(argv[1]); 
     const float height = (float)atoi(argv[2]);
@@ -35,6 +39,8 @@ int main(int argc, char **argv) {
     const float height = 512;
 
     const float aspect = width/height; // 1
+
+    const float zoff = 3;
 
     const float zn = 1;
     const float zf = 10;
