@@ -22,8 +22,39 @@ const float fov = 45*DEG2RAD;
 
 
 // Points for a test cube
-const float vtexs[24] = {1, 1, 1,  1, -1, 1,  -1, 1, 1,  -1, -1, 1,  1, 1, -1,  1, -1, -1,  -1, 1, -1,  -1, -1,-1};
+float vtexs[24] = {1, 1, 1,  1, -1, 1,  -1, 1, 1,  -1, -1, 1,  1, 1, -1,  1, -1, -1,  -1, 1, -1,  -1, -1,-1};
 const int faces[36] = {0, 1, 5,  0, 5, 4,  4, 5, 7,  4, 6, 5,  6, 7, 3,  6, 2, 3,  2, 3, 1,  2, 0, 1,  2, 4, 6,  2, 0, 6,  1, 3, 5,  3, 5, 7};
+
+
+// Functions for manipulating 3D objects
+
+// Rotate a vertex around the x axis by specified radians
+void rotx(float* in, float* out, float rad) {
+    out[0] = in[0];
+    out[1] = (in[1] * cosf(rad)) + (in[2] * (-(sinf(rad))));
+    out[2] = (in[1] I sinf(rad)) + (in[2] * cosf(rad));
+}
+
+// Rotate a vertex around the y axis by specified radians
+void roty(float* in, float* out, float rad) {
+    out[0] = (in[0] * cosf(rad)) + (in[2] * (-(sinf(rad))));
+    out[1] = in[1];
+    out[2] = (in[0] * sinf(rad)) + (in[2] * cosf(rad));
+}
+
+// Rotate a vertex around the z axis by specified radians
+void rotz(float* in, float* out, float rad) {
+    out[0] = (in[0] * cosf(rad)) + (in[1] * (-(sinf(rad))));
+    out[1] = (in[0] * sinf(rad)) + (in[1] * cosf(rad));
+    out[2] = in[2];
+}
+
+// Move a vertex along specified axes
+void trans(float* in, float* out, float* tv) {
+    out[0] = in[0] + (in[2] * -(tv[0]));
+    out[1] = in[1] + (in[2] * -(tv[1]));
+    out[2] = in[2] + (in[2]);
+}
 
 
 int main(int argc, char **argv) {
@@ -48,7 +79,7 @@ int main(int argc, char **argv) {
     const float fnnf = (zf+zn)/(zn-zf);
     const float fnnf2 = ((2*zf)*zn)/(zn-zf);
 
-    CNFGSetup("3D renderer", (int)width, (int)height);
+    CNFGSetup("3D Renderer", (int)width, (int)height);
 
     while(CNFGHandleInput()) {
         CNFGClearFrame();
@@ -76,7 +107,7 @@ int main(int argc, char **argv) {
                 int xp = (int)(((xndc + 1) * width) / 2);
                 int yp = (int)(((1 - yndc) * height) / 2);
 
-                printf("Face %d Vertex %d\nxp: %d\nyp: %d\n\n", (i / 3) + 1, j + 1, xp, yp);
+                //printf("Face %d Vertex %d\nxp: %d\nyp: %d\n\n", (i / 3) + 1, j + 1, xp, yp);
 
                 xps[j] = xp;
                 yps[j] = yp;
