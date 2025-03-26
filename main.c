@@ -24,6 +24,7 @@ const float vtexs[24] = {1, 1, 1,  1, -1, 1,  -1, 1, 1,  -1, -1, 1,  1, 1, -1,  
 const int faces[36] = {0, 1, 5,  0, 5, 4,  4, 5, 7,  4, 6, 5,  6, 7, 3,  6, 2, 3,  2, 3, 1,  2, 0, 1,  2, 4, 6,  2, 0, 6,  1, 3, 5,  3, 5, 7};
 
 // char output[1760];
+const float zoff = 5;
 
 int main(int argc, char **argv) {
     /*
@@ -55,15 +56,15 @@ int main(int argc, char **argv) {
             int yps[3];
 
             for(int j = 0; j < 3; j++) {
-                float vtexx = vtexs[(faces[i + j])];
-                float vtexy = vtexs[(faces[i + j]) + 1];
-                float vtexz = vtexs[(faces[i + j]) + 2] + 5;
+                float vtexx = vtexs[((faces[i + j]) * 3)];
+                float vtexy = vtexs[((faces[i + j]) * 3) + 1];
+                float vtexz = vtexs[((faces[i + j]) * 3) + 2] + zoff;
                 float w = 1;
 
                 vtexx *= atf;
                 vtexy *= tf;
                 vtexz = (vtexz * fnnf) + (w * -1);
-                w = (vtexs[(faces[i + j])] + 10) * fnnf2;
+                w = (vtexs[((faces[i + j]) * 3) + 2] + zoff) * fnnf2;
 
                 float xndc = vtexx/w;
                 float yndc = vtexy/w;
