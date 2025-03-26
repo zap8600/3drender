@@ -21,8 +21,7 @@ const float fov = 60*DEG2RAD;
 
 // Points for a test cube
 const float vtexs[24] = {1, 1, 1,  1, -1, 1,  -1, 1, 1,  -1, -1, 1,  1, 1, -1,  1, -1, -1,  -1, 1, -1,  -1, -1,-1};
-const int vtexscon[24] = {1, 2, 4,  0, 3, 5,  0, 3, 6,  2, 1, 7,  0, 5, 6,  4, 1, 7,  2, 7, 4,  3, 6, 5};
-int vtexsp[16];
+const int faces[36] = {0, 1, 5,  0, 5, 4,  4, 5, 7,  4, 6, 5,  6, 7, 3,  6, 2, 3,  2, 3, 1,  2, 0, 1,  2, 4, 6,  2, 0, 6,  1, 3, 5,  3, 5, 7};
 
 // char output[1760];
 
@@ -50,7 +49,37 @@ int main() {
         CNFGClearFrame();
         CNFGColor(0xffffffff);
 
-        // Compute pixel coordinates of the points
+        // Compute pixel coordinates of the points and draw lines
+        for(int i = 0; i < 36; i += 3) {
+            int xps[3];
+            int yps[3];
+
+            for(int j = 0; j < 3; j++) {
+                float vtexx = vtexs[(faces[i + j])];
+                float vtexy = vtexs[(faces[i + j]) + 1];
+                float vtexz = vtexs[(faces[i + j]) + 2] + 10;
+                float w = 1;
+
+                vtexx *= atf;
+                vtexy *= tf;
+                vtexz = (vtexz * fnnf) + (w * -1);
+                w = (vtexs[(faces[i + j])] + 10) * fnnf2;
+
+                float xndc = vtexx/w;
+                float yndc = vtexy/w;
+
+                int xp = (int)(((xndc + 1) * width) / 2);
+                int yp = (int)(((1 - yndc) * height) / 2);
+
+                xps[j] = xp;
+                ypd[j] = yp;
+            }
+
+            CNFGTackSegment(xps[0], yps[0], xps[1], yps[1]);
+            CNFGTackSegment(xps[1], yps[1], xps[2], yps[2]);
+            CNFGTackSegment(xps[2], yps[2], xps[0], yps[0]);
+        }
+        /*
         for(int i = 0; i < 24; i += 3) {
             float vtexx = vtexs[i];
             float vtexy = vtexs[i + 1];
@@ -74,6 +103,7 @@ int main() {
             //vtexsp[(i / 3) + 1] = yp;
             CNFGTackPixel(xp, yp);
         }
+        */
 
         /*
         for(int i = 0; i < 8; i++) {
