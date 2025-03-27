@@ -75,7 +75,7 @@ vec3 nor(vec3 in) {
 // Faces do not support texture coordinates and normal indices
 // Does not support quad faces yet
 // User has to free vertex and face arrays themselves
-int load_obj(const char* filename, float* vtexs, int* ovtexamt, int* faces, int* ofaceamt) {
+int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* ofaceamt) {
     FILE* obj = fopen(filename, "rb");
     if(obj == NULL) {
         fprintf(stderr, "Failed to open file %s!\n", filename);
@@ -94,7 +94,7 @@ int load_obj(const char* filename, float* vtexs, int* ovtexamt, int* faces, int*
             case 'v':
             {
                 vtexamt++;
-                vtexs = (float*)realloc(vtexs, (vtexamt * 3) * sizeof(float));
+                vtexs = (float*)realloc(vtexs, vtexamt * sizeof(vec3));
 
                 char buf[100]; // TODO: make it dynamic
                 char *bufptr = buf;
@@ -104,7 +104,25 @@ int load_obj(const char* filename, float* vtexs, int* ovtexamt, int* faces, int*
                     *bufptr++ = (char)c;
                     if((c == ' ') || (c == '\n') || (c == EOF)) { // TODO: do something in case we hit an EOF and we're not done reading the vertex
                         *bufptr == '\0';
-                        vtexs[(vtexamt * 3) + (pr++)] = (float)atof(buf);
+                        float v = (float)atof(buf);
+                        pr++;
+                        switch(pr) {
+                            case 1:
+                            {
+                                vtexs[vtexamt - 1].x = v;
+                                break;
+                            }
+                            case 2:
+                            {
+                                vtexs[vtexamt - 1].y = v;
+                                break;
+                            }
+                            case 3:
+                            {
+                                vtexs[vtexamt - 1].z = v;
+                                break;
+                            }
+                        }
                         if(pr == 3) {
                             break;
                         } else {
