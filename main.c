@@ -196,13 +196,13 @@ int main(int argc, char **argv) {
     const float fnnf2 = ((2*zf)*zn)/(zn-zf);
 
     // Model loading
-    float* vtexs = NULL;
+    vec3* vtexs = NULL;
     int vtexamt;
 
     int* faces = NULL;
     int faceamt;
     
-    const float modelpos[3] = {0, 0, 3}; // Making it a constant for now
+    const vec3 modelpos = {0, 0, 3}; // Making it a constant for now
 
     load_obj(argv[1], vtexs, &vtexamt, faces, &faceamt); // TODO: return an error if this fails
 
@@ -221,12 +221,8 @@ int main(int argc, char **argv) {
         // Rotate the cube around the y axis 90 degrees per second
         // Time is tracked by measuring how long the last frame was
         // Will not rotate when the window is being moved
-        for(int i = 0; i < vtexamt * 3; i += 3) {
-            float nvtex[3];
-            roty(&(vtexs[i]), nvtex, delta*(90*DEG2RAD));
-            vtexs[i] = nvtex[0];
-            vtexs[i+1] = nvtex[1];
-            vtexs[i+2] = nvtex[2];
+        for(int i = 0; i < vtexamt; i++) {
+            vtexs[i] = roty(vtexs[i], delta*(90*DEG2RAD));
         }
 
         // Compute pixel coordinates of the points and draw lines
@@ -235,15 +231,15 @@ int main(int argc, char **argv) {
             int yps[3];
 
             for(int j = 0; j < 3; j++) {
-                float vtexx = vtexs[((faces[i + j]) * 3)] + modelpos[0];
-                float vtexy = vtexs[((faces[i + j]) * 3) + 1] + modelpos[1];
-                float vtexz = vtexs[((faces[i + j]) * 3) + 2] + modelpos[2];
+                float vtexx = vtexs[faces[i + j]].x + modelpos.x;
+                float vtexy = vtexs[faces[i + j]].y + modelpos.y;
+                float vtexz = vtexs[faces[i + j]].z + modelpos.z;
                 float w = 1;
 
                 vtexx *= atf;
                 vtexy *= tf;
                 vtexz = (vtexz * fnnf) + (w * -1);
-                w = (vtexs[((faces[i + j]) * 3) + 2] + modelpos[2]) * fnnf2;
+                w = (vtexs[faces[i + j]].z + modelpos.z) * fnnf2;
 
                 float xndc = vtexx/w;
                 float yndc = vtexy/w;
