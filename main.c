@@ -27,6 +27,12 @@ typedef struct vec3 {
 
 // Functions for manipulating 3D points
 
+// Subtract one vector by another
+vec3 sub(vec3 v1, vec3 v2) {
+    vec3 r = {v1.x - v2.x, v1.y - v2.y, v1.z - v2.z};
+    return r;
+}
+
 // Rotate a vector around the x axis by specified radians
 vec3 rotx(vec3 in, float rad) {
     vec3 r;
@@ -55,7 +61,7 @@ vec3 rotz(vec3 in, float rad) {
 }
 
 // Normalize a vector
-vec3 nor(vec3 in) {
+vec3 norm(vec3 in) {
     vec3 r = in;
     float l = sqrtf((in.x * in.x) + (in.y * in.y) + (in.z + in.z));
     if(l != 0) {
@@ -64,6 +70,18 @@ vec3 nor(vec3 in) {
         r.y *= il;
         r.z *= il;
     }
+    return r;
+}
+
+// Get the cross product of 2 vectors
+vec3 cross(vec3 v1, vec3 v2) {
+    vec3 r = {(v1.x * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z), (v1.x * v2.y) - (v1.y * v2.x)};
+    return r;
+}
+
+// Get the dot product of 2 vectors
+float dot(vec3 v1, vec3 v2) {
+    float r = ((v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z));
     return r;
 }
 
@@ -180,6 +198,9 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
     return 1;
 }
 
+const vec3 up = {0, 1, 0};
+const vec3 circlepos = {0, 0, 7};
+const vec3 camerapos = {0, 0, 0};
 
 int main(int argc, char **argv) {
     if(argc != 2) {
@@ -208,7 +229,7 @@ int main(int argc, char **argv) {
     int* faces = NULL;
     int faceamt;
     
-    const vec3 modelpos = {0, 0, 3}; // Making it a constant for now
+    vec3 modelpos = {0, 0, 3};
 
     load_obj(argv[1], &vtexs, &vtexamt, &faces, &faceamt); // TODO: return an error if this fails
 
@@ -224,11 +245,14 @@ int main(int argc, char **argv) {
         float delta = ((float)(now - lasttime)) / CLOCKS_PER_SEC;
         lasttime = now;
 
-        // Rotate the cube around the y axis 90 degrees per second
+        // Rotate the object around the y axis in a circle -90 degrees per second
+        modelpos = roty(modelpos, delta*(-0.5*PI));
+
+        // Rotate the model around the y axis 90 degrees per second
         // Time is tracked by measuring how long the last frame was
-        // Will not rotate when the window is being moved
+        // Will not rotate when the window is being moved, but will jump to the new rotation when movement stops
         for(int i = 0; i < vtexamt; i++) {
-            vtexs[i] = roty(vtexs[i], delta*(90*DEG2RAD));
+            vtexs[i] = roty(vtexs[i], delta*(0.5*PI));
         }
 
         // Compute pixel coordinates of the points and draw lines
@@ -237,19 +261,32 @@ int main(int argc, char **argv) {
             int yps[3];
 
             for(int j = 0; j < 3; j++) {
-                float vtexx = vtexs[faces[i + j]].x + modelpos.x;
-                float vtexy = vtexs[faces[i + j]].y + modelpos.y;
-                float vtexz = vtexs[faces[i + j]].z + modelpos.z;
+                vec3 cvtex = {vtexs[faces[i + j]].x + modelpos.x + circlepos.x, vtexs[faces[i + j]].y + modelpos.y + circlepos.y, vtexs[faces[i + j]].z + modelpos.z + circlepos.z};
+                float vtexx = cvtex.x;
+                float vtexy = cvtex.y;
+                float vtexz = cvtex.z;
                 float w = 1;
 
+                vec3 za = norm(sub(camerapos, vtexz));
+                vec3 xa = norm(cross(up, za));
+                vec3 ya = cross(za, xa);
+
+                // COnvert from world space to camera space
+                vtexx = (vtexx * xa.x) + (vtexy * xa.y) + (vtexz * xa.z) + (w * (-(dot(xa, camerapos))));
+                vtexy = (vtexx * ya.x) + (vtexy * ya.y) + (vtexz * ya.z) + (w * (-(dot(ya, camerapos))));
+                vtexz = (vtexx * za.x) + (vtexy * za.y) + (vtexz * za.z) + (w * (-(dot(za, camerapos))));
+                const float vz = vtexz;
+
+                // Convert from camera space to NDC
                 vtexx *= atf;
                 vtexy *= tf;
                 vtexz = (vtexz * fnnf) + (w * -1);
-                w = (vtexs[faces[i + j]].z + modelpos.z) * fnnf2;
+                w = (vz) * fnnf2;
 
                 float xndc = vtexx/w;
                 float yndc = vtexy/w;
 
+                // Convert from NDC to screen space
                 int xp = (int)(((xndc + 1) * width) / 2);
                 int yp = (int)(((1 - yndc) * height) / 2);
 
