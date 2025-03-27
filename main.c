@@ -25,19 +25,6 @@ typedef struct vec3 {
     float z;
 } vec3;
 
-int line = 1;
-int character = 0;
-
-int getfilech(FILE* file) {
-    int c = fgetc(file);
-    character++;
-    if(c == '\n') {
-        character = 0;
-        line++;
-    }
-    return c;
-}
-
 // Functions for manipulating 3D points
 
 // Rotate a vector around the x axis by specified radians
@@ -99,83 +86,65 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
     int vtexamt = 0;
     int faceamt = 0;
 
-    while((type = getfilech(obj)) != EOF) {
-        getfilech(obj);
+    while((type = fgetc(obj)) != EOF) {
         switch(type) {
             case 'v':
             {
+                fseek(obj, 1, SEEK_CUR);
+
                 vtexamt++;
                 vtexs = (vec3*)realloc(vtexs, vtexamt * sizeof(vec3));
 
-                char buf[100]; // TODO: make it dynamic
-                char *bufptr = buf;
-                int pr = 0;
-                while(1) {
-                    int c = getfilech(obj);
-                    *bufptr++ = (char)c;
-                    if((c == ' ') || (c == '\n') || (c == EOF)) { // TODO: do something in case we hit an EOF and we're not done reading the vertex
-                        *bufptr == '\0';
-                        float v = (float)atof(buf);
-                        pr++;
-                        switch(pr) {
-                            case 1:
-                            {
-                                vtexs[vtexamt - 1].x = v;
-                                break;
-                            }
-                            case 2:
-                            {
-                                vtexs[vtexamt - 1].y = v;
-                                break;
-                            }
-                            case 3:
-                            {
-                                vtexs[vtexamt - 1].z = v;
-                                break;
-                            }
-                        }
-                        if(pr == 3) {
+                char buf[100];
+                char* bufptr = buf;
+                for(int i = 0; i < 3; i++) {
+                    while(1) {
+                        int c = fgetc(obj);
+                        *bufptr++ = (char)c;
+                        if((c == ' ') || (c == '\n')) {
+                            *bufptr = '\0';
                             break;
-                        } else {
-                            getfilech(obj);
-                            continue;
                         }
-                    } else {
-                        continue;
                     }
+                    float v = (float)atof(buf);
+                    switch(i) {
+                        case 0: vtexs[vtexamt - 1].x = v; break;
+                        case 1: vtexs[vtexamt - 1].y = v; break;
+                        case 2: vtexs[vtexamt - 1].z = v; break;
+                    }
+                    bufptr = buf;
                 }
                 break;
             }
             case 'f':
             {
+                fseek(obj, 1, SEEK_CUR);
+
                 faceamt++;
                 faces = (int*)realloc(faces, (faceamt * 3) * sizeof(int));
 
-                char buf[100]; // TODO: make it dynamic
-                char *bufptr = buf;
-                int pr = 0;
-                while(1) {
-                    int c = getfilech(obj);
-                    *bufptr++ = (char)c;
-                    if((c == ' ') || (c == '\n') || (c == EOF)) { // TODO: do something in case we hit an EOF and we're not done reading the face
-                        *bufptr == '\0';
-                        faces[(faceamt * 3) + (pr++)] = atoi(buf);
-                        if(pr == 3) {
+                char buf[100];
+                char* bufptr = buf;
+                for(int i = 0; i < 3; i++) {
+                    while(1) {
+                        int c = fgetc(obj);
+                        *bufptr++ = (char)c;
+                        if((c == ' ') || (c == '\n')) {
+                            *bufptr = '\0';
                             break;
-                        } else {
-                            getfilech(obj);
-                            continue;
                         }
-                    } else {
-                        continue;
                     }
+                    int v = atoi(buf);
+                    faces[((faceamt - 1) * 3) + i] = v;
+                    bufptr = buf;
                 }
+                break;
                 break;
             }
             case '\n': continue;
             default:
             {
-                fprintf(stderr, "Unknown type at line %d character %d: %c\n", line, character, (char)type);
+                fprintf(stderr, "Unknown type: %c\n", (char)type);
                 fclose(obj);
                 *ovtexamt = 0;
                 *ofaceamt = 0;
