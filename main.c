@@ -37,14 +37,10 @@ vec3 rotx(vec3 in, float rad) {
 }
 
 // Rotate a vector around the y axis by specified radians
-vec3 roty(vec3 in, float rad) {
-    printf("r\n");
+vec3 roty(vec3 in, float rad) {;
     vec3 r;
-    printf("x\n");
     r.x = (in.x * cosf(rad)) + (in.z * (-(sinf(rad))));
-    printf("y\n");
     r.y = in.y;
-    printf("z\n");
     r.z = (in.x * sinf(rad)) + (in.z * cosf(rad));
     return r;
 }
@@ -232,10 +228,7 @@ int main(int argc, char **argv) {
         // Time is tracked by measuring how long the last frame was
         // Will not rotate when the window is being moved
         for(int i = 0; i < vtexamt; i++) {
-            printf("start rotate\n");
-            printf("amt: %d, i: %d\n", vtexamt, i);
             vtexs[i] = roty(vtexs[i], delta*(90*DEG2RAD));
-            printf("end rotate\n");
         }
 
         // Compute pixel coordinates of the points and draw lines
