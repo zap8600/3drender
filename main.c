@@ -233,6 +233,7 @@ int main(int argc, char **argv) {
         // Will not rotate when the window is being moved
         for(int i = 0; i < vtexamt; i++) {
             printf("start rotate\n");
+            printf("amt: %d, i: %d\n", vtexamt, i);
             vtexs[i] = roty(vtexs[i], delta*(90*DEG2RAD));
             printf("end rotate\n");
         }
