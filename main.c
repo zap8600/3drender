@@ -131,7 +131,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                         int c = fgetc(obj);
                         printf("f%d: %c\n", faceamt, (char)c);
                         *bufptr++ = (char)c;
-                        if((c == ' ') || (c == '\n')) {
+                        if((c == ' ') || (c == '\n') || (c == EOF)) {
                             *bufptr = '\0';
                             break;
                         }
