@@ -100,7 +100,6 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                 for(int i = 0; i < 3; i++) {
                     while(1) {
                         int c = fgetc(obj);
-                        printf("v%d: %c\n", vtexamt, (char)c);
                         *bufptr++ = (char)c;
                         if((c == ' ') || (c == '\n')) {
                             *bufptr = '\0';
@@ -129,7 +128,6 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                 for(int i = 0; i < 3; i++) {
                     while(1) {
                         int c = fgetc(obj);
-                        printf("f%d: %c\n", faceamt, (char)c);
                         *bufptr++ = (char)c;
                         if((c == ' ') || (c == '\n') || (c == EOF)) {
                             *bufptr = '\0';
@@ -190,7 +188,6 @@ int main(int argc, char **argv) {
     const vec3 modelpos = {0, 0, 3}; // Making it a constant for now
 
     load_obj(argv[1], vtexs, &vtexamt, faces, &faceamt); // TODO: return an error if this fails
-    printf("done loading\n");
 
     CNFGSetup("3D Renderer", (int)width, (int)height);
 
@@ -208,6 +205,7 @@ int main(int argc, char **argv) {
         // Time is tracked by measuring how long the last frame was
         // Will not rotate when the window is being moved
         for(int i = 0; i < vtexamt; i++) {
+            printf("");
             vtexs[i] = roty(vtexs[i], delta*(90*DEG2RAD));
         }
 
