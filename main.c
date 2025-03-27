@@ -46,7 +46,7 @@ vec3 roty(vec3 in, float rad) {
 }
 
 // Rotate a vector around the z axis by specified radians
-vec3 rotz(float* in, float* out, float rad) {
+vec3 rotz(vec3* in, float rad) {
     vec3 r;
     r.x = (in.x * cosf(rad)) + (in.y * (-(sinf(rad))));
     r.y = (in.x * sinf(rad)) + (in.y * cosf(rad));
@@ -82,9 +82,6 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
         return 0;
     }
 
-    *vtexamt = 0;
-    *faceamt = 0;
-
     int type;
     int vtexamt = 0;
     int faceamt = 0;
@@ -94,7 +91,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
             case 'v':
             {
                 vtexamt++;
-                vtexs = (float*)realloc(vtexs, vtexamt * sizeof(vec3));
+                vtexs = (vec3*)realloc(vtexs, vtexamt * sizeof(vec3));
 
                 char buf[100]; // TODO: make it dynamic
                 char *bufptr = buf;
