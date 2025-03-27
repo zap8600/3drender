@@ -93,7 +93,28 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                 switch(type) {
                     case ' ': {
                         vtexamt++;
-                        vtexs = (vec3*)realloc(vtexs)
+                        vtexs = (vec3*)realloc(vtexs, vtexamt * sizeof(vec3));
+
+                        char buf[100];
+                        char* bufptr = buf;
+                        for(int i = 0; i < 3; i++) {
+                            while(1) {
+                                int c = fgetc(obj);
+                                *bufptr++ = (char)c;
+                                if((c == ' ') || (c == '\n') || (c == EOF)) {
+                                    *bufptr = '\0';
+                                    break;
+                                }
+                            }
+                            float v = (float)atof(buf);
+                            switch(i) {
+                                case 0: vtexs[vtexamt - 1].x = v; break;
+                                case 1: vtexs[vtexamt - 1].y = v; break;
+                                case 2: vtexs[vtexamt - 1].z = v; break;
+                            }
+                            bufptr = buf;
+                        }
+                        break;
                     }
                     case 'n':
                     case 't': {
@@ -136,6 +157,12 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                 break;
             }
             case '\n': continue;
+            case '#':
+            {
+                int c;
+                while((c = fgetc(obj)) != '\n') {}
+                break;
+            }
             default:
             {
                 fprintf(stderr, "Unknown type: %c\n", (char)type);
