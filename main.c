@@ -38,6 +38,7 @@ vec3 rotx(vec3 in, float rad) {
 
 // Rotate a vector around the y axis by specified radians
 vec3 roty(vec3 in, float rad) {
+    printf("r\n");
     vec3 r;
     printf("x\n");
     r.x = (in.x * cosf(rad)) + (in.z * (-(sinf(rad))));
