@@ -71,20 +71,22 @@ int main(int argc, char **argv) {
 
     CNFGSetup("3D Renderer", (int)width, (int)height);
 
-    float lastframetime = 0;
+    clock_t lasttime = clock();
 
     while(CNFGHandleInput()) {
-        clock_t startofframe = clock();
-
         CNFGClearFrame();
         CNFGColor(0xffffffff);
+
+        clock_t now = clock();
+        float delta = ((float)(now - lasttime)) / CLOCKS_PER_SEC;
+        lasttime = now;
 
         // Rotate the cube around the y axis 90 degrees per second
         // Time is tracked by measuring how long the last frame was
         // Will not rotate when the window is being moved
         for(int i = 0; i < 24; i += 3) {
             float nvtex[3];
-            roty(&(vtexs[i]), &(nvtex[0]), lastframetime*(90*DEG2RAD));
+            roty(&(vtexs[i]), &(nvtex[0]), delta*(90*DEG2RAD));
             vtexs[i] = nvtex[0];
             vtexs[i+1] = nvtex[1];
             vtexs[i+2] = nvtex[2];
@@ -122,9 +124,6 @@ int main(int argc, char **argv) {
         }
 
         CNFGSwapBuffers();
-
-        clock_t endofframe = clock();
-        lastframetime = ((float)(endofframe - startofframe)) / ((float)CLOCKS_PER_SEC);
     }
 
     return 0;
