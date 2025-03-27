@@ -267,7 +267,7 @@ int main(int argc, char **argv) {
                 float vtexz = cvtex.z;
                 float w = 1;
 
-                vec3 za = norm(sub(camerapos, vtexz));
+                vec3 za = norm(sub(camerapos, cvtex));
                 vec3 xa = norm(cross(up, za));
                 vec3 ya = cross(za, xa);
 
