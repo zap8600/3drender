@@ -122,7 +122,6 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                 fseek(obj, 1, SEEK_CUR);
 
                 faceamt++;
-                printf("faceamt: %d\n", faceamt);
                 faces = (int*)realloc(faces, (faceamt * 3) * sizeof(int));
 
                 char buf[100];
@@ -154,6 +153,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
             }
         }
     }
+    printf("done loading\n");
     *ovtexamt = vtexamt;
     *ofaceamt = faceamt;
 
