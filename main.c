@@ -25,6 +25,19 @@ typedef struct vec3 {
     float z;
 } vec3;
 
+int line = 1;
+int character = 0;
+
+int getfilech(FILE* file) {
+    int c = fgetc(file);
+    character++;
+    if(c == '\n') {
+        character = 0;
+        line++;
+    }
+    return c;
+}
+
 // Functions for manipulating 3D points
 
 // Rotate a vector around the x axis by specified radians
@@ -86,8 +99,8 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
     int vtexamt = 0;
     int faceamt = 0;
 
-    while((type = fgetc(obj)) != EOF) {
-        fseek(obj, 1, SEEK_CUR);
+    while((type = getfilech(obj)) != EOF) {
+        getfilech(obj);
         switch(type) {
             case 'v':
             {
@@ -98,7 +111,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                 char *bufptr = buf;
                 int pr = 0;
                 while(1) {
-                    int c = fgetc(obj);
+                    int c = getfilech(obj);
                     *bufptr++ = (char)c;
                     if((c == ' ') || (c == '\n') || (c == EOF)) { // TODO: do something in case we hit an EOF and we're not done reading the vertex
                         *bufptr == '\0';
@@ -124,7 +137,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                         if(pr == 3) {
                             break;
                         } else {
-                            fseek(obj, 1, SEEK_CUR);
+                            getfilech(obj);
                             continue;
                         }
                     } else {
@@ -142,7 +155,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                 char *bufptr = buf;
                 int pr = 0;
                 while(1) {
-                    int c = fgetc(obj);
+                    int c = getfilech(obj);
                     *bufptr++ = (char)c;
                     if((c == ' ') || (c == '\n') || (c == EOF)) { // TODO: do something in case we hit an EOF and we're not done reading the face
                         *bufptr == '\0';
@@ -150,7 +163,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                         if(pr == 3) {
                             break;
                         } else {
-                            fseek(obj, 1, SEEK_CUR);
+                            getfilech
                             continue;
                         }
                     } else {
@@ -162,7 +175,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
             case '\n': continue;
             default:
             {
-                fprintf(stderr, "Unknown type at %ld: %c\n", ftell(obj), (char)type);
+                fprintf(stderr, "Unknown type at %d: %c\n", line, (char)type);
                 fclose(obj);
                 *ovtexamt = 0;
                 *ofaceamt = 0;
