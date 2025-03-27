@@ -87,6 +87,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
     int faceamt = 0;
 
     while((type = fgetc(obj)) != EOF) {
+        fseek(obj, 1, SEEK_CUR);
         switch(type) {
             case 'v':
             {
