@@ -153,7 +153,6 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
             }
         }
     }
-    printf("done loading\n");
     *ovtexamt = vtexamt;
     *ofaceamt = faceamt;
 
@@ -191,6 +190,7 @@ int main(int argc, char **argv) {
     const vec3 modelpos = {0, 0, 3}; // Making it a constant for now
 
     load_obj(argv[1], vtexs, &vtexamt, faces, &faceamt); // TODO: return an error if this fails
+    printf("done loading\n");
 
     CNFGSetup("3D Renderer", (int)width, (int)height);
 
