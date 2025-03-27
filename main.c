@@ -71,8 +71,7 @@ vec3 nor(vec3 in) {
 // Functions for reading models
 
 // Read an OBJ model and load it into memory
-// Currently lacks support for anything but vertexes and faces
-// Faces do not support texture coordinates and normal indices
+// Texture coordinates and normal indices are read but not loaded and ignored in faces for now
 // Does not support quad faces yet
 // User has to free vertex and face arrays themselves
 int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* ofaceamt) {
@@ -90,31 +89,27 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
         switch(type) {
             case 'v':
             {
-                fseek(obj, 1, SEEK_CUR);
-
-                vtexamt++;
-                vtexs = (vec3*)realloc(vtexs, vtexamt * sizeof(vec3));
-
-                char buf[100];
-                char* bufptr = buf;
-                for(int i = 0; i < 3; i++) {
-                    while(1) {
-                        int c = fgetc(obj);
-                        *bufptr++ = (char)c;
-                        if((c == ' ') || (c == '\n')) {
-                            *bufptr = '\0';
-                            break;
-                        }
+                type = fgetc(obj);
+                switch(type) {
+                    case ' ': {
+                        vtexamt++;
+                        vtexs = (vec3*)realloc(vtexs)
                     }
-                    float v = (float)atof(buf);
-                    switch(i) {
-                        case 0: vtexs[vtexamt - 1].x = v; break;
-                        case 1: vtexs[vtexamt - 1].y = v; break;
-                        case 2: vtexs[vtexamt - 1].z = v; break;
+                    case 'n':
+                    case 't': {
+                        int c;
+                        while((c = fgetc(obj)) != '\n') {}
+                        break;
                     }
-                    bufptr = buf;
+                    default:
+                    {
+                        fprintf(stderr, "Unknown type: v%c\n", (char)type);
+                        fclose(obj);
+                        *ovtexamt = 0;
+                        *ofaceamt = 0;
+                        return 0;
+                    }
                 }
-                break;
             }
             case 'f':
             {
@@ -134,7 +129,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                             break;
                         }
                     }
-                    int v = atoi(buf);
+                    int v = atoi(buf) - 1; // We need to subtract one because the obj vertex arra starts at 1 instead of 0
                     faces[((faceamt - 1) * 3) + i] = v;
                     bufptr = buf;
                 }
@@ -205,7 +200,6 @@ int main(int argc, char **argv) {
         // Time is tracked by measuring how long the last frame was
         // Will not rotate when the window is being moved
         for(int i = 0; i < vtexamt; i++) {
-            printf("");
             vtexs[i] = roty(vtexs[i], delta*(90*DEG2RAD));
         }
 
