@@ -163,7 +163,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                         if(pr == 3) {
                             break;
                         } else {
-                            getfilech
+                            getfilech(obj);
                             continue;
                         }
                     } else {
