@@ -19,27 +19,52 @@ int HandleDestroy() { return 0; }
 // 45 degrees
 const float fov = 45*DEG2RAD;
 
-// Functions for manipulating 3D objects
+typedef struct vec3 {
+    float x;
+    float y;
+    float z;
+} vec3;
 
-// Rotate a vertex around the x axis by specified radians
-void rotx(float* in, float* out, float rad) {
-    out[0] = in[0];
-    out[1] = (in[1] * cosf(rad)) + (in[2] * (-(sinf(rad))));
-    out[2] = (in[1] * sinf(rad)) + (in[2] * cosf(rad));
+// Functions for manipulating 3D points
+
+// Rotate a vector around the x axis by specified radians
+vec3 rotx(vec3 in, float rad) {
+    vec3 r;
+    r.x = in.x;
+    r.y = (in.y * cosf(rad)) + (in.z * (-(sinf(rad))));
+    r.z = (in.y * sinf(rad)) + (in.z * cosf(rad));
+    return r;
 }
 
-// Rotate a vertex around the y axis by specified radians
-void roty(float* in, float* out, float rad) {
-    out[0] = (in[0] * cosf(rad)) + (in[2] * (-(sinf(rad))));
-    out[1] = in[1];
-    out[2] = (in[0] * sinf(rad)) + (in[2] * cosf(rad));
+// Rotate a vector around the y axis by specified radians
+vec3 roty(vec3 in, float rad) {
+    vec3 r;
+    r.x = (in.x * cosf(rad)) + (in.z * (-(sinf(rad))));
+    r.y = in.y;
+    r.z = (in.x * sinf(rad)) + (in.z * cosf(rad));
+    return r;
 }
 
-// Rotate a vertex around the z axis by specified radians
-void rotz(float* in, float* out, float rad) {
-    out[0] = (in[0] * cosf(rad)) + (in[1] * (-(sinf(rad))));
-    out[1] = (in[0] * sinf(rad)) + (in[1] * cosf(rad));
-    out[2] = in[2];
+// Rotate a vector around the z axis by specified radians
+vec3 rotz(float* in, float* out, float rad) {
+    vec3 r;
+    r.x = (in.x * cosf(rad)) + (in.y * (-(sinf(rad))));
+    r.y = (in.x * sinf(rad)) + (in.y * cosf(rad));
+    r.z = in.z;
+    return r;
+}
+
+// Normalize a vector
+vec3 nor(vec3 in) {
+    vec3 r = in;
+    float l = sqrtf((in.x * in.x) + (in.y * in.y) + (in.z + in.z));
+    if(l != 0) {
+        float il = 1/l;
+        r.x *= il;
+        r.y *= il;
+        r.z *= il;
+    }
+    return r;
 }
 
 
