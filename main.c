@@ -124,6 +124,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                         if(pr == 3) {
                             break;
                         } else {
+                            fseek(obj, 1, SEEK_CUR);
                             continue;
                         }
                     } else {
@@ -149,6 +150,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                         if(pr == 3) {
                             break;
                         } else {
+                            fseek(obj, 1, SEEK_CUR);
                             continue;
                         }
                     } else {
