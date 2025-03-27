@@ -141,7 +141,6 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                     bufptr = buf;
                 }
                 break;
-                break;
             }
             case '\n': continue;
             default:
