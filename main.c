@@ -78,7 +78,7 @@ vec3 nor(vec3 in) {
 // Texture coordinates and normal indices are read but not loaded and ignored in faces for now
 // Does not support quad faces yet
 // User has to free vertex and face arrays themselves
-int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* ofaceamt) {
+int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int* ofaceamt) {
     FILE* obj = fopen(filename, "rb");
     if(obj == NULL) {
         fprintf(stderr, "Failed to open file %s!\n", filename);
@@ -97,7 +97,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                 switch(type) {
                     case ' ': {
                         vtexamt++;
-                        vtexs = (vec3*)realloc(vtexs, vtexamt * sizeof(vec3));
+                        (*vtexs) = (vec3*)realloc((*vtexs), vtexamt * sizeof(vec3));
 
                         char buf[100];
                         char* bufptr = buf;
@@ -112,9 +112,9 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                             }
                             float v = (float)atof(buf);
                             switch(i) {
-                                case 0: vtexs[vtexamt - 1].x = v; break;
-                                case 1: vtexs[vtexamt - 1].y = v; break;
-                                case 2: vtexs[vtexamt - 1].z = v; break;
+                                case 0: (*vtexs)[vtexamt - 1].x = v; break;
+                                case 1: (*vtexs)[vtexamt - 1].y = v; break;
+                                case 2: (*vtexs)[vtexamt - 1].z = v; break;
                             }
                             bufptr = buf;
                         }
@@ -142,7 +142,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                 fseek(obj, 1, SEEK_CUR);
 
                 faceamt++;
-                faces = (int*)realloc(faces, (faceamt * 3) * sizeof(int));
+                (*faces) = (int*)realloc((*faces), (faceamt * 3) * sizeof(int));
 
                 char buf[100];
                 char* bufptr = buf;
@@ -156,7 +156,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                         }
                     }
                     int v = atoi(buf) - 1; // We need to subtract one because the obj vertex arra starts at 1 instead of 0
-                    faces[((faceamt - 1) * 3) + i] = v;
+                    (*faces)[((faceamt - 1) * 3) + i] = v;
                     bufptr = buf;
                 }
                 break;
@@ -214,7 +214,7 @@ int main(int argc, char **argv) {
     
     const vec3 modelpos = {0, 0, 3}; // Making it a constant for now
 
-    load_obj(argv[1], vtexs, &vtexamt, faces, &faceamt); // TODO: return an error if this fails
+    load_obj(argv[1], &vtexs, &vtexamt, &faces, &faceamt); // TODO: return an error if this fails
 
     CNFGSetup("3D Renderer", (int)width, (int)height);
 
