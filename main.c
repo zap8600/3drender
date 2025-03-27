@@ -228,7 +228,9 @@ int main(int argc, char **argv) {
         // Time is tracked by measuring how long the last frame was
         // Will not rotate when the window is being moved
         for(int i = 0; i < vtexamt; i++) {
+            printf("start rotate\n");
             vtexs[i] = roty(vtexs[i], delta*(90*DEG2RAD));
+            printf("end rotate\n");
         }
 
         // Compute pixel coordinates of the points and draw lines
