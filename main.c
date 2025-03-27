@@ -19,14 +19,6 @@ int HandleDestroy() { return 0; }
 // 45 degrees
 const float fov = 45*DEG2RAD;
 
-
-// Points for a test cube
-float vtexs[24] = {1, 1, 1,  1, -1, 1,  -1, 1, 1,  -1, -1, 1,  1, 1, -1,  1, -1, -1,  -1, 1, -1,  -1, -1, -1};
-// Faces of the cube
-const int faces[36] = {0, 1, 5,  0, 5, 4,  4, 5, 7,  4, 6, 7,  6, 7, 3,  6, 2, 3,  2, 3, 1,  2, 0, 1,  2, 4, 6,  2, 0, 4,  1, 3, 5,  3, 5, 7};
-// Position of the center of the cube
-float cubepos[3] = {0, 0, 3};
-
 // Functions for manipulating 3D objects
 
 // Rotate a vertex around the x axis by specified radians
@@ -51,11 +43,102 @@ void rotz(float* in, float* out, float rad) {
 }
 
 
+// Functions for reading models
+
+// Read an OBJ model and load it into memory
+// Currently lacks support for anything but vertexes and faces
+// Faces do not support texture coordinates and normal indices
+// Does not support quad faces yet
+// User has to free vertex and face arrays themselves
+int load_obj(const char* filename, float* vtexs, int* ovtexamt, int* faces, int* ofaceamt) {
+    FILE* obj = fopen(filename, "rb");
+    if(obj == NULL) {
+        fprintf(stderr, "Failed to open file %s!\n", filename);
+        return 0;
+    }
+
+    *vtexamt = 0;
+    *faceamt = 0;
+
+    int type;
+    int vtexamt = 0;
+    int faceamt = 0;
+
+    while((type = fgetc(obj)) != EOF) {
+        switch(type) {
+            case 'v':
+            {
+                vtexamt++;
+                vtexs = (float*)realloc(vtexs, (vtexamt * 3) * sizeof(float));
+
+                char buf[100]; // TODO: make it dynamic
+                char *bufptr = buf;
+                int pr = 0;
+                while(1) {
+                    int c = fgetc(obj);
+                    *bufptr++ = (char)c;
+                    if((c == ' ') || (c == '\n') || (c == EOF)) { // TODO: do something in case we hit an EOF and we're not done reading the vertex
+                        *bufptr == '\0';
+                        vtexs[(vtexamt * 3) + (pr++)] = (float)atof(buf);
+                        if(pr == 3) {
+                            break;
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
+                }
+                break;
+            }
+            case 'f':
+            {
+                faceamt++;
+                faces = (int*)realloc(faces, (faceamt * 3) * sizeof(int));
+
+                char buf[100]; // TODO: make it dynamic
+                char *bufptr = buf;
+                int pr = 0;
+                while(1) {
+                    int c = fgetc(obj);
+                    *bufptr++ = (char)c;
+                    if((c == ' ') || (c == '\n') || (c == EOF)) { // TODO: do something in case we hit an EOF and we're not done reading the face
+                        *bufptr == '\0';
+                        faces[(faceamt * 3) + (pr++)] = atoi(buf);
+                        if(pr == 3) {
+                            break;
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
+                }
+                break;
+            }
+            case '\n': continue;
+            default:
+            {
+                fprintf(stderr, "Unknown type: %c\n", (char)type);
+                fclose(obj);
+                return 0;
+            }
+        }
+    }
+    *ovtexamt = vtexamt;
+    *ofaceamt = faceamt;
+
+    return 1;
+}
+
+
 int main(int argc, char **argv) {
-    /*
-    const float width = (float)atoi(argv[1]); 
-    const float height = (float)atoi(argv[2]);
-    */
+    if(argc != 2) {
+        fprintf(stderr, "Usage: %s [obj model file pathe]\n", argv[0]);
+        return 1;
+    }
+
+    // Precomputing math required for rendering
     const float width = 512;
     const float height = 512;
 
@@ -68,6 +151,17 @@ int main(int argc, char **argv) {
     const float tf = 1/tanf(fov/2);
     const float fnnf = (zf+zn)/(zn-zf);
     const float fnnf2 = ((2*zf)*zn)/(zn-zf);
+
+    // Model loading
+    float* vtexs = NULL;
+    int vtexamt;
+
+    int* faces = NULL;
+    int faceamt;
+    
+    const float modelpos[3] = {0, 0, 3}; // Making it a constant for now
+
+    load_obj(argv[1], vtexs, &vtexamt, faces, &faceamt); // TODO: return an error if this fails
 
     CNFGSetup("3D Renderer", (int)width, (int)height);
 
@@ -84,29 +178,29 @@ int main(int argc, char **argv) {
         // Rotate the cube around the y axis 90 degrees per second
         // Time is tracked by measuring how long the last frame was
         // Will not rotate when the window is being moved
-        for(int i = 0; i < 24; i += 3) {
+        for(int i = 0; i < vtexamt * 3; i += 3) {
             float nvtex[3];
-            roty(&(vtexs[i]), &(nvtex[0]), delta*(90*DEG2RAD));
+            roty(&(vtexs[i]), nvtex, delta*(90*DEG2RAD));
             vtexs[i] = nvtex[0];
             vtexs[i+1] = nvtex[1];
             vtexs[i+2] = nvtex[2];
         }
 
         // Compute pixel coordinates of the points and draw lines
-        for(int i = 0; i < 36; i += 3) {
+        for(int i = 0; i < faceamt * 3; i += 3) {
             int xps[3];
             int yps[3];
 
             for(int j = 0; j < 3; j++) {
-                float vtexx = vtexs[((faces[i + j]) * 3)] + cubepos[0];
-                float vtexy = vtexs[((faces[i + j]) * 3) + 1] + cubepos[1];
-                float vtexz = vtexs[((faces[i + j]) * 3) + 2] + cubepos[2];
+                float vtexx = vtexs[((faces[i + j]) * 3)] + modelpos[0];
+                float vtexy = vtexs[((faces[i + j]) * 3) + 1] + modelpos[1];
+                float vtexz = vtexs[((faces[i + j]) * 3) + 2] + modelpos[2];
                 float w = 1;
 
                 vtexx *= atf;
                 vtexy *= tf;
                 vtexz = (vtexz * fnnf) + (w * -1);
-                w = (vtexs[((faces[i + j]) * 3) + 2] + cubepos[2]) * fnnf2;
+                w = (vtexs[((faces[i + j]) * 3) + 2] + modelpos[2]) * fnnf2;
 
                 float xndc = vtexx/w;
                 float yndc = vtexy/w;
@@ -125,6 +219,9 @@ int main(int argc, char **argv) {
 
         CNFGSwapBuffers();
     }
+
+    free(vtexs);
+    free(faces);
 
     return 0;
 }
