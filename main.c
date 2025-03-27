@@ -101,7 +101,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                             while(1) {
                                 int c = fgetc(obj);
                                 *bufptr++ = (char)c;
-                                if((c == ' ') || (c == '\n') || (c == EOF)) {
+                                if((c == ' ') || (c == '\n')) {
                                     *bufptr = '\0';
                                     break;
                                 }
@@ -131,6 +131,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
                         return 0;
                     }
                 }
+                break;
             }
             case 'f':
             {
