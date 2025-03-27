@@ -162,7 +162,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
             case '\n': continue;
             default:
             {
-                fprintf(stderr, "Unknown type: %c\n", (char)type);
+                fprintf(stderr, "Unknown type at %ld: %c\n", ftell(obj), (char)type);
                 fclose(obj);
                 *ovtexamt = 0;
                 *ofaceamt = 0;
