@@ -90,7 +90,7 @@ int load_obj(const char* filename, vec3* vtexs, int* ovtexamt, int* faces, int* 
     int vtexamt = 0;
     int faceamt = 0;
 
-    while(ftell(obj) > objsize) {
+    while(ftell(obj) < objsize) {
         type = fgetc(obj);
         switch(type) {
             case 'v':
