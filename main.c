@@ -69,7 +69,7 @@ vec3 rotz(vec3 in, float rad) {
 // Normalize a vector
 vec3 norm(vec3 in) {
     vec3 r = in;
-    float l = sqrtf((in.x * in.x) + (in.y * in.y) + (in.z + in.z));
+    float l = sqrtf((in.x * in.x) + (in.y * in.y) + (in.z * in.z));
     if(l != 0) {
         float il = 1/l;
         r.x *= il;
