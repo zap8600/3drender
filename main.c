@@ -27,6 +27,12 @@ typedef struct vec3 {
 
 // Functions for manipulating 3D points
 
+// Add one vecter to another
+vec3 add(vec3 v1, vec3 v2) {
+    vec3 r = {v1.x + v2.x, v1.y + v2.y, v1.z + v2.z};
+    return r;
+}
+
 // Subtract one vector by another
 vec3 sub(vec3 v1, vec3 v2) {
     vec3 r = {v1.x - v2.x, v1.y - v2.y, v1.z - v2.z};
@@ -261,13 +267,13 @@ int main(int argc, char **argv) {
             int yps[3];
 
             for(int j = 0; j < 3; j++) {
-                vec3 cvtex = {vtexs[faces[i + j]].x + modelpos.x + circlepos.x, vtexs[faces[i + j]].y + modelpos.y + circlepos.y, vtexs[faces[i + j]].z + modelpos.z + circlepos.z};
+                vec3 cvtex = add(add(vtexs[faces[i + j]], modelpos), circlepos);
                 float vtexx = cvtex.x;
                 float vtexy = cvtex.y;
                 float vtexz = cvtex.z;
                 float w = 1;
 
-                vec3 za = norm(sub(camerapos, cvtex));
+                vec3 za = norm(sub(camerapos, add(modelpos, circlepos)));
                 vec3 xa = norm(cross(up, za));
                 vec3 ya = cross(za, xa);
 
