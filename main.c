@@ -207,7 +207,7 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
 
 const vec3 up = {0, 1, 0};
 const vec3 realmodelpos = {0, 0, 5};
-const vec3 camerapos = {0, 0, 0};
+const vec3 camerapos = {10, 0, 10};
 
 int main(int argc, char **argv) {
     if(argc != 2) {
