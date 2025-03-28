@@ -281,7 +281,7 @@ int main(int argc, char **argv) {
                 vtexx = (vtexx * xa.x) + (vtexy * xa.y) + (vtexz * xa.z) + (w * (-(dot(xa, camerapos))));
                 vtexy = (vtexx * ya.x) + (vtexy * ya.y) + (vtexz * ya.z) + (w * (-(dot(ya, camerapos))));
                 vtexz = (vtexx * za.x) + (vtexy * za.y) + (vtexz * za.z) + (w * (-(dot(za, camerapos))));
-                const float vz = vtexz
+                const float vz = vtexz;
 
                 // Convert from camera space to NDC
                 vtexx *= atf;
