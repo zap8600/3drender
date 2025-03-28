@@ -25,6 +25,26 @@ typedef struct vec3 {
     float z;
 } vec3;
 
+typedef struct vtex {
+    vec3 pos;
+} vtex;
+
+typedef struct vtex nrmi;
+
+typedef struct tcrd {
+    float u;
+    float v;
+    float w; // What for???
+} tcrd;
+
+typedef struct face {
+    int vtexs[3];
+    int nrmis[3];
+    int hasnrmis;
+    int tcrds[3];
+    int hastcrds
+} face;
+
 // Functions for manipulating 3D points
 
 // Add one vecter to another
@@ -98,7 +118,7 @@ float dot(vec3 v1, vec3 v2) {
 // Texture coordinates and normal indices are read but not loaded and ignored in faces for now
 // Does not support quad faces yet
 // User has to free vertex and face arrays themselves
-int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int* ofaceamt, vec3** tcrds, int* otcrdamt, vec3** nrmis, int* onrmiamt) {
+int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, int* ofaceamt, tcrd** tcrds, int* otcrdamt, nrmi** nrmis, int* onrmiamt) {
     FILE* obj = fopen(filename, "rb");
     if(obj == NULL) {
         fprintf(stderr, "Failed to open file %s!\n", filename);
@@ -109,6 +129,7 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
     int vtexamt = 0;
     int faceamt = 0;
     int tcrdamt = 0;
+    int nrmiamt = 0;
 
     while((type = fgetc(obj)) != EOF) {
         switch(type) {
@@ -118,7 +139,7 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
                 switch(type) {
                     case ' ': {
                         vtexamt++;
-                        (*vtexs) = (vec3*)realloc((*vtexs), vtexamt * sizeof(vec3));
+                        (*vtexs) = (vtex*)realloc((*vtexs), vtexamt * sizeof(vtex));
 
                         char buf[100];
                         char* bufptr = buf;
@@ -133,9 +154,9 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
                             }
                             float v = (float)atof(buf);
                             switch(i) {
-                                case 0: (*vtexs)[vtexamt - 1].x = v; break;
-                                case 1: (*vtexs)[vtexamt - 1].y = v; break;
-                                case 2: (*vtexs)[vtexamt - 1].z = v; break;
+                                case 0: (*vtexs)[vtexamt - 1].pos.x = v; break;
+                                case 1: (*vtexs)[vtexamt - 1].pos.y = v; break;
+                                case 2: (*vtexs)[vtexamt - 1].pos.z = v; break;
                             }
                             bufptr = buf;
                         }
@@ -143,8 +164,10 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
                     }
                     case 'n':
                     {
-                        vtexamt++;
-                        (*vtexs) = (vec3*)realloc((*vtexs), vtexamt * sizeof(vec3));
+                        fseek(obj, 1, SEEK_CUR);
+
+                        nrmiamt++;
+                        (*nrmis) = (nrmi*)realloc((*nrmis), nrmiamt * sizeof(nrmi));
 
                         char buf[100];
                         char* bufptr = buf;
@@ -159,17 +182,47 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
                             }
                             float v = (float)atof(buf);
                             switch(i) {
-                                case 0: (*vtexs)[vtexamt - 1].x = v; break;
-                                case 1: (*vtexs)[vtexamt - 1].y = v; break;
-                                case 2: (*vtexs)[vtexamt - 1].z = v; break;
+                                case 0: (*nrmis)[nrmiamt - 1].pos.x = v; break;
+                                case 1: (*nrmis)[nrmiamt - 1].pos.y = v; break;
+                                case 2: (*nrmis)[nrmiamt - 1].pos.z = v; break;
                             }
                             bufptr = buf;
                         }
                         break;
                     }
                     case 't': {
-                        int c;
-                        while((c = fgetc(obj)) != '\n') {}
+                        fseek(obj, 1, SEEK_CUR);
+
+                        tcrdamt++;
+                        (*tcrds) = (tcrd*)realloc((*tcrds), tcrdamt * sizeof(vec3));
+
+                        char buf[100];
+                        char* bufptr = buf;
+                        int l = 2;
+                        for(int i = 0; i < l; i++) {
+                            while(1) {
+                                int c = fgetc(obj);
+                                *bufptr++ = (char)c;
+                                if(c == ' ') {
+                                    if(i == 1) {
+                                        l = 3; // I don't think I should be doing it like this but eh
+                                    }
+                                    *bufptr = '\0';
+                                    break;
+                                }
+                                if(c == '\n') {
+                                    *bufptr = '\0';
+                                    break;
+                                }
+                            }
+                            float v = (float)atof(buf);
+                            switch(i) {
+                                case 0: (*tcrds)[tcrdamt - 1].u = v; break;
+                                case 1: (*tcrds)[tcrdamt - 1].v = v; break;
+                                case 2: (*tcrds)[tcrdamt - 1].w = v; break;
+                            }
+                            bufptr = buf;
+                        }
                         break;
                     }
                     default:
@@ -188,7 +241,7 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
                 fseek(obj, 1, SEEK_CUR);
 
                 faceamt++;
-                (*faces) = (int*)realloc((*faces), (faceamt * 3) * sizeof(int));
+                (*faces) = (face*)realloc((*faces), faceamt * sizeof(face));
 
                 char buf[100];
                 char* bufptr = buf;
@@ -202,7 +255,7 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
                         }
                     }
                     int v = atoi(buf) - 1; // We need to subtract one because the obj vertex arra starts at 1 instead of 0
-                    (*faces)[((faceamt - 1) * 3) + i] = v;
+                    (*faces)[(faceamt - 1) + i] = v;
                     bufptr = buf;
                 }
                 break;
