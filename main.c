@@ -119,7 +119,7 @@ float dot(vec3 v1, vec3 v2) {
 // Does not support quad faces yet
 // User has to free vertex and face arrays themselves
 int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, int* ofaceamt, tcrd** tcrds, int* otcrdamt, nrmi** nrmis, int* onrmiamt) {
-    FILE* obj = fopen(filename, "rb");
+    FILE* obj = fopen(filename, "r");
     if(obj == NULL) {
         fprintf(stderr, "Failed to open file %s!\n", filename);
         return 0;
@@ -131,154 +131,24 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
     int tcrdamt = 0;
     int nrmiamt = 0;
 
-    while((type = fgetc(obj)) != EOF) {
-        switch(type) {
+    while(!feof(obj)) {
+        char line[100];
+        memset(line, 0, 100);
+        fgets(line, 100, obj);
+        if(line[strlen(line)] == '\n') line[strlen(line)] = ' ';
+        
+        switch(line[0]) {
             case 'v':
             {
-                type = fgetc(obj);
-                switch(type) {
-                    case ' ': {
-                        vtexamt++;
-                        (*vtexs) = (vtex*)realloc((*vtexs), vtexamt * sizeof(vtex));
-
-                        char buf[100];
-                        char* bufptr = buf;
-                        for(int i = 0; i < 3; i++) {
-                            while(1) {
-                                int c = fgetc(obj);
-                                *bufptr++ = (char)c;
-                                if((c == ' ') || (c == '\n')) {
-                                    *bufptr = '\0';
-                                    break;
-                                }
-                            }
-                            float v = (float)atof(buf);
-                            switch(i) {
-                                case 0: (*vtexs)[vtexamt - 1].pos.x = v; break;
-                                case 1: (*vtexs)[vtexamt - 1].pos.y = v; break;
-                                case 2: (*vtexs)[vtexamt - 1].pos.z = v; break;
-                            }
-                            bufptr = buf;
-                        }
-                        break;
-                    }
-                    case 'n':
-                    {
-                        fseek(obj, 1, SEEK_CUR);
-
-                        nrmiamt++;
-                        (*nrmis) = (nrmi*)realloc((*nrmis), nrmiamt * sizeof(nrmi));
-
-                        char buf[100];
-                        char* bufptr = buf;
-                        for(int i = 0; i < 3; i++) {
-                            while(1) {
-                                int c = fgetc(obj);
-                                *bufptr++ = (char)c;
-                                if((c == ' ') || (c == '\n')) {
-                                    *bufptr = '\0';
-                                    break;
-                                }
-                            }
-                            float v = (float)atof(buf);
-                            switch(i) {
-                                case 0: (*nrmis)[nrmiamt - 1].pos.x = v; break;
-                                case 1: (*nrmis)[nrmiamt - 1].pos.y = v; break;
-                                case 2: (*nrmis)[nrmiamt - 1].pos.z = v; break;
-                            }
-                            bufptr = buf;
-                        }
-                        break;
-                    }
-                    case 't': {
-                        fseek(obj, 1, SEEK_CUR);
-
-                        tcrdamt++;
-                        (*tcrds) = (tcrd*)realloc((*tcrds), tcrdamt * sizeof(vec3));
-
-                        char buf[100];
-                        char* bufptr = buf;
-                        int l = 2;
-                        for(int i = 0; i < l; i++) {
-                            while(1) {
-                                int c = fgetc(obj);
-                                *bufptr++ = (char)c;
-                                if(c == ' ') {
-                                    if(i == 1) {
-                                        l = 3; // I don't think I should be doing it like this but eh
-                                    }
-                                    *bufptr = '\0';
-                                    break;
-                                }
-                                if(c == '\n') {
-                                    *bufptr = '\0';
-                                    break;
-                                }
-                            }
-                            float v = (float)atof(buf);
-                            switch(i) {
-                                case 0: (*tcrds)[tcrdamt - 1].u = v; break;
-                                case 1: (*tcrds)[tcrdamt - 1].v = v; break;
-                                case 2: (*tcrds)[tcrdamt - 1].w = v; break;
-                            }
-                            bufptr = buf;
-                        }
-                        break;
-                    }
-                    default:
-                    {
-                        fprintf(stderr, "Unknown type: v%c\n", (char)type);
-                        fclose(obj);
-                        *ovtexamt = 0;
-                        *ofaceamt = 0;
-                        return 0;
-                    }
-                }
-                break;
+                switch
             }
             case 'f':
             {
-                fseek(obj, 1, SEEK_CUR);
-
-                faceamt++;
-                (*faces) = (face*)realloc((*faces), faceamt * sizeof(face));
-
-                char buf[100];
-                char* bufptr = buf;
-                for(int i = 0; i < 3; i++) {
-                    while(1) {
-                        int c = fgetc(obj);
-                        *bufptr++ = (char)c;
-                        if((c == ' ') || (c == '\n') || (c == EOF)) {
-                            *bufptr = '\0';
-                            break;
-                        }
-                    }
-                    int v = atoi(buf) - 1; // We need to subtract one because the obj vertex arra starts at 1 instead of 0
-                    (*faces)[(faceamt - 1) + i] = v;
-                    bufptr = buf;
-                }
-                break;
+                //
             }
-            case '\n': continue;
-            case '#':
-            {
-                int c;
-                while((c = fgetc(obj)) != '\n') {}
-                break;
-            }
-            default:
-            {
-                fprintf(stderr, "Unknown type: %c\n", (char)type);
-                fclose(obj);
-                *ovtexamt = 0;
-                *ofaceamt = 0;
-                return 0;
-            }
+            default: continue; // TODO: Handle loading errors
         }
     }
-    *ovtexamt = vtexamt;
-    *ofaceamt = faceamt;
 
     return 1;
 }
