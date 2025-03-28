@@ -224,7 +224,7 @@ int main(int argc, char **argv) {
     const float zn = 1;
     const float zf = 10;
 
-    const float atf = 1/(aspect*tanf(fov/2));
+    const float atf = 1/(aspect-tanf(fov/2));
     const float tf = 1/tanf(fov/2);
     const float fnnf = (zf+zn)/(zn-zf);
     const float fnnf2 = ((2*zf)*zn)/(zn-zf);
