@@ -289,7 +289,7 @@ int main(int argc, char **argv) {
                 vtexx *= atf;
                 vtexy *= tf;
                 vtexz = (vtexz * fnnf) + (w * -1);
-                w = (vz) * fnnf2;
+                w = cvtex.z * fnnf2;
 
                 float xndc = vtexx/w;
                 float yndc = vtexy/w;
