@@ -98,7 +98,7 @@ float dot(vec3 v1, vec3 v2) {
 // Texture coordinates and normal indices are read but not loaded and ignored in faces for now
 // Does not support quad faces yet
 // User has to free vertex and face arrays themselves
-int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int* ofaceamt) {
+int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int* ofaceamt, vec3** tcrds, int* otcrdamt, vec3** nrmis, int* onrmiamt) {
     FILE* obj = fopen(filename, "rb");
     if(obj == NULL) {
         fprintf(stderr, "Failed to open file %s!\n", filename);
@@ -108,6 +108,7 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
     int type;
     int vtexamt = 0;
     int faceamt = 0;
+    int tcrdamt = 0;
 
     while((type = fgetc(obj)) != EOF) {
         switch(type) {
@@ -141,6 +142,31 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
                         break;
                     }
                     case 'n':
+                    {
+                        vtexamt++;
+                        (*vtexs) = (vec3*)realloc((*vtexs), vtexamt * sizeof(vec3));
+
+                        char buf[100];
+                        char* bufptr = buf;
+                        for(int i = 0; i < 3; i++) {
+                            while(1) {
+                                int c = fgetc(obj);
+                                *bufptr++ = (char)c;
+                                if((c == ' ') || (c == '\n')) {
+                                    *bufptr = '\0';
+                                    break;
+                                }
+                            }
+                            float v = (float)atof(buf);
+                            switch(i) {
+                                case 0: (*vtexs)[vtexamt - 1].x = v; break;
+                                case 1: (*vtexs)[vtexamt - 1].y = v; break;
+                                case 2: (*vtexs)[vtexamt - 1].z = v; break;
+                            }
+                            bufptr = buf;
+                        }
+                        break;
+                    }
                     case 't': {
                         int c;
                         while((c = fgetc(obj)) != '\n') {}
@@ -207,7 +233,7 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
 
 const vec3 up = {0, 1, 0};
 const vec3 realmodelpos = {0, 0, 5};
-const vec3 camerapos = {5, 0, 10};
+const vec3 camerapos = {0, 0, 0};
 
 int main(int argc, char **argv) {
     if(argc != 2) {
