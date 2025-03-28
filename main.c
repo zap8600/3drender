@@ -273,8 +273,7 @@ int main(int argc, char **argv) {
                 float vtexz = cvtex.z;
                 float w = 1;
 
-                /*
-                vec3 za = norm(sub(camerapos, add(modelpos, circlepos)));
+                vec3 za = norm(sub(camerapos, add(modelrotpos, realmodelpos)));
                 vec3 xa = norm(cross(up, za));
                 vec3 ya = cross(za, xa);
 
@@ -283,13 +282,12 @@ int main(int argc, char **argv) {
                 vtexy = (vtexx * ya.x) + (vtexy * ya.y) + (vtexz * ya.z) + (w * (-(dot(ya, camerapos))));
                 vtexz = (vtexx * za.x) + (vtexy * za.y) + (vtexz * za.z) + (w * (-(dot(za, camerapos))));
                 const float vz = vtexz
-                */
 
                 // Convert from camera space to NDC
                 vtexx *= atf;
                 vtexy *= tf;
                 vtexz = (vtexz * fnnf) + (w * -1);
-                w = cvtex.z * fnnf2;
+                w = vz * fnnf2;
 
                 float xndc = vtexx/w;
                 float yndc = vtexy/w;
