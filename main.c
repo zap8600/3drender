@@ -34,7 +34,6 @@ typedef struct vtex nrmi;
 typedef struct tcrd {
     float u;
     float v;
-    float w; // What for???
 } tcrd;
 
 typedef struct face {
@@ -132,19 +131,107 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
     int nrmiamt = 0;
 
     while(!feof(obj)) {
-        char line[100];
-        memset(line, 0, 100);
-        fgets(line, 100, obj);
+        char line[500];
+        memset(line, 0, 500);
+        fgets(line, 500, obj);
         if(line[strlen(line)] == '\n') line[strlen(line)] = ' ';
         
         switch(line[0]) {
             case 'v':
             {
-                switch
+                switch(line[1]) {
+                    case ' ':
+                    {
+                        vtexamt++;
+                        (*vtexs) = (vtex*)realloc((*vtexs), vtexamt * sizeof(vtex));
+                        char* curpar = line + 2;
+                        for(int i = 0; i < 3; i++) {
+                            char* eo = strchr(curpar, ' ');
+                            *eo = '\0';
+                            float v = (float)atof(curpar);
+                            switch(i) {
+                                case 0: (*vtexs)[vtexamt - 1].pos.x = v; break;
+                                case 1: (*vtexs)[vtexamt - 1].pos.y = v; break;
+                                case 2: (*vtexs)[vtexamt - 1].pos.z = v; break;
+                            }
+                            curpar = eo + 1;
+                        }
+                        break;
+                    }
+                    case 't':
+                    {
+                        tcrdamt++;
+                        (*tcrds) = (tcrd*)realloc((*tcrds), tcrdamt * sizeof(tcrd));
+                        char* curpar = line + 3;
+                        for(int i = 0; i < 2; i++) { // TODO: Handle optional W value
+                            char* eo = strchr(curpar, ' ');
+                            *eo = '\0';
+                            float v = (float)atof(curpar);
+                            switch(i) {
+                                case 0: (*tcrds)[tcrdamt - 1].u = v; break;
+                                case 1: (*tcrds)[tcrdamt - 1].v = v; break;
+                            }
+                            curpar = eo + 1;
+                        }
+                        break;
+                    }
+                    case 'n':
+                    {
+                        nrmiamt++;
+                        (*nrmis) = (nrmi*)realloc((*nrmis), nrmiamt * sizeof(nrmi));
+                        char* curpar = line + 3;
+                        for(int i = 0; i < 3; i++) {
+                            char* eo = strchr(curpar, ' ');
+                            *eo = '\0';
+                            float v = (float)atof(curpar);
+                            switch(i) {
+                                case 0: (*nrmis)[nrmiamt - 1].pos.x = v; break;
+                                case 1: (*nrmis)[nrmiamt - 1].pos.y = v; break;
+                                case 2: (*nrmis)[nrmiamt - 1].pos.z = v; break;
+                            }
+                            curpar = eo + 1;
+                        }
+                        break;
+                    }
+                    default: continue; // TODO: Handle loading errors
+                }
+                break;
             }
             case 'f':
             {
-                //
+                faceamt++;
+                (*faces) = (face*)realloc((*faces), faceamt * sizeof(face));
+                char* curpar = line + 2;
+                char* tfv = strchr(curpar, '/');
+                int hasnrmis = 0;
+                int hastcrds = 0;
+                if(tfv != NULL) { // Check for optional values
+                    if(strchr(tfv + 1, '/') < strchr(tfv + 1, ' ')) {
+                        if(tfv[1] == '/') {
+                            hasnrmis = 1;
+                            hastcrds = 0;
+                        } else {
+                            hasnrmis = 1;
+                            hastcrds = 1;
+                        }
+                    } else {
+                        hasnrmis = 0;
+                        hastcrds = 1;
+                    }
+                } else {
+                    hasnrmis = 0;
+                    hastcrds = 0;
+                }
+                for(int i = 0; i < 3; i++) {
+                    char* eo = strchr(curpar, (hasnrmis | hastcrds)?'/':' ');
+                    *eo = '\0';
+                    int v = atoi(curpar) - 1;
+                    (*faces)[faceamt - 1].vtexs[i] = v;
+                    curpar = eo + 1;
+                    if(hastcrds) {
+                        v = atoi(*curpar);
+                    }
+                }
             }
             default: continue; // TODO: Handle loading errors
         }
