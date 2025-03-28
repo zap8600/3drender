@@ -81,7 +81,7 @@ vec3 norm(vec3 in) {
 
 // Get the cross product of 2 vectors
 vec3 cross(vec3 v1, vec3 v2) {
-    vec3 r = {(v1.x * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z), (v1.x * v2.y) - (v1.y * v2.x)};
+    vec3 r = {(v1.y * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z), (v1.x * v2.y) - (v1.y * v2.x)};
     return r;
 }
 
@@ -205,7 +205,7 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
 }
 
 const vec3 up = {0, 1, 0};
-const vec3 circlepos = {0, 0, 7};
+const vec3 realmodelpos = {0, 0, 5};
 const vec3 camerapos = {0, 0, 0};
 
 int main(int argc, char **argv) {
@@ -235,7 +235,7 @@ int main(int argc, char **argv) {
     int* faces = NULL;
     int faceamt;
     
-    vec3 modelpos = {0, 0, 3};
+    vec3 modelrotpos = {0, 0, 2};
 
     load_obj(argv[1], &vtexs, &vtexamt, &faces, &faceamt); // TODO: return an error if this fails
 
@@ -252,7 +252,7 @@ int main(int argc, char **argv) {
         lasttime = now;
 
         // Rotate the object around the y axis in a circle -90 degrees per second
-        modelpos = roty(modelpos, delta*(-0.5*PI));
+        modelrotpos = roty(modelrotpos, delta*(-0.5*PI));
 
         // Rotate the model around the y axis 90 degrees per second
         // Time is tracked by measuring how long the last frame was
@@ -267,7 +267,7 @@ int main(int argc, char **argv) {
             int yps[3];
 
             for(int j = 0; j < 3; j++) {
-                vec3 cvtex = add(add(vtexs[faces[i + j]], modelpos), circlepos);
+                vec3 cvtex = add(add(vtexs[faces[i + j]], modelrotpos), realmodelpos);
                 float vtexx = cvtex.x;
                 float vtexy = cvtex.y;
                 float vtexz = cvtex.z;
