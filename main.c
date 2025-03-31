@@ -103,65 +103,13 @@ float dot(vec3 v1, vec3 v2) {
 
 // Functions for reading models
 
-// Read an OBJ model and load it into memory
-int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, int* ofaceamt, tcrd** tcrds, int* otcrdamt) {
+int load_obj(const char* filename) {
     FILE* obj = fopen(filename, "r");
     if(obj == NULL) {
-        fprintf(stderr, "Failed to open file %s!\n", filename);
+        fprintf(stderr, "Unable to open file %s!\n", filename);
         return 0;
     }
-
-    while(1) {
-        int type = fgetc(obj);
-        switch(type) {
-            case 'v':
-            {
-                type = fgetc(obj);
-                switch(type) {
-                    case ' ':
-                    {
-                        //
-                        break;
-                    }
-                    case 't':
-                    {
-                        //
-                        break;
-                    }
-                    case 'n':
-                    {
-                        //
-                        break;
-                    }
-                }
-                break;
-            }
-            case 'f':
-            {
-                //
-                break;
-            }
-            case 'l':
-            {
-                //
-                break;
-            }
-            case '\n': continue;
-            case '#':
-            case 'g':
-            case 's':
-            {
-                int c = fgetc(obj);
-                while((c != '\n') || (c != EOF)) {
-                    c = fgetc(obj);
-                }
-            }
-        }
-    }
-
-    return 1;
 }
-
 
 const vec3 up = {0, 1, 0};
 const vec3 realmodelpos = {0, 0, 5};
@@ -193,13 +141,8 @@ int main(int argc, char **argv) {
 
     face* faces = NULL;
     int faceamt;
-
-    tcrd* tcrds = NULL;
-    int tcrdamt;
     
     vec3 modelrotpos = {0, 0, 2};
-
-    load_obj(argv[1], &vtexs, &vtexamt, &faces, &faceamt, &tcrds, &tcrd); // TODO: return an error if this fails
 
     CNFGSetup("3D Renderer", (int)width, (int)height);
 
@@ -230,9 +173,9 @@ int main(int argc, char **argv) {
 
             for(int j = 0; j < 3; j++) {
                 vec3 cvtex = add(add(vtexs[faces[i + j]], modelrotpos), realmodelpos);
-                float vtexx = cvtex.x;
-                float vtexy = cvtex.y;
-                float vtexz = cvtex.z;
+                float vtexx = cvtex[0];
+                float vtexy = cvtex[1];
+                float vtexz = cvtex[2];
                 float w = 1;
 
                 vec3 za = norm(sub(camerapos, add(modelrotpos, realmodelpos)));
@@ -240,9 +183,9 @@ int main(int argc, char **argv) {
                 vec3 ya = cross(za, xa);
 
                 // Convert from world space to camera space
-                vtexx = (vtexx * xa.x) + (vtexy * xa.y) + (vtexz * xa.z) + (w * (-(dot(xa, camerapos))));
-                vtexy = (vtexx * ya.x) + (vtexy * ya.y) + (vtexz * ya.z) + (w * (-(dot(ya, camerapos))));
-                vtexz = (vtexx * za.x) + (vtexy * za.y) + (vtexz * za.z) + (w * (-(dot(za, camerapos))));
+                vtexx = (vtexx * xa[0]) + (vtexy * xa[1]) + (vtexz * xa[2]) + (w * (-(dot(xa, camerapos))));
+                vtexy = (vtexx * ya[0]) + (vtexy * ya[1]) + (vtexz * ya[2]) + (w * (-(dot(ya, camerapos))));
+                vtexz = (vtexx * za[0]) + (vtexy * za[1]) + (vtexz * za[2]) + (w * (-(dot(za, camerapos))));
                 const float vz = vtexz;
 
                 // Convert from camera space to NDC
