@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
@@ -19,28 +20,17 @@ int HandleDestroy() { return 0; }
 // 45 degrees
 const float fov = 45*DEG2RAD;
 
-typedef struct vec3 {
-    float x;
-    float y;
-    float z;
-} vec3;
+typedef float vec3[3];
+typedef float vec4[4];
 
-typedef struct vtex {
-    vec3 pos;
-} vtex;
-
-typedef struct vtex nrmi;
-
-typedef struct tcrd {
-    float u;
-    float v;
-} tcrd;
+typedef vec4 vtex;
+typedef vec3 tcrd;
+typedef vec3 nrmi;
 
 typedef struct face {
-    int vtexs[3];
-    int nrmis[3];
-    int hasnrmis;
-    int tcrds[3];
+    int* vtexs;
+    int vtexamt;
+    int* tcrds;
     int hastcrds
 } face;
 
@@ -48,65 +38,65 @@ typedef struct face {
 
 // Add one vecter to another
 vec3 add(vec3 v1, vec3 v2) {
-    vec3 r = {v1.x + v2.x, v1.y + v2.y, v1.z + v2.z};
+    vec3 r = {v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2]};
     return r;
 }
 
 // Subtract one vector by another
 vec3 sub(vec3 v1, vec3 v2) {
-    vec3 r = {v1.x - v2.x, v1.y - v2.y, v1.z - v2.z};
+    vec3 r = {v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]};
     return r;
 }
 
 // Rotate a vector around the x axis by specified radians
 vec3 rotx(vec3 in, float rad) {
     vec3 r;
-    r.x = in.x;
-    r.y = (in.y * cosf(rad)) + (in.z * (-(sinf(rad))));
-    r.z = (in.y * sinf(rad)) + (in.z * cosf(rad));
+    r[0] = in[0];
+    r[1] = (in[1] * cosf(rad)) + (in[2] * (-(sinf(rad))));
+    r[2] = (in[1] * sinf(rad)) + (in[2] * cosf(rad));
     return r;
 }
 
 // Rotate a vector around the y axis by specified radians
 vec3 roty(vec3 in, float rad) {;
     vec3 r;
-    r.x = (in.x * cosf(rad)) + (in.z * (-(sinf(rad))));
-    r.y = in.y;
-    r.z = (in.x * sinf(rad)) + (in.z * cosf(rad));
+    r[0] = (in[0] * cosf(rad)) + (in[2] * (-(sinf(rad))));
+    r[1] = in[1];
+    r[2] = (in[0] * sinf(rad)) + (in[2] * cosf(rad));
     return r;
 }
 
 // Rotate a vector around the z axis by specified radians
 vec3 rotz(vec3 in, float rad) {
     vec3 r;
-    r.x = (in.x * cosf(rad)) + (in.y * (-(sinf(rad))));
-    r.y = (in.x * sinf(rad)) + (in.y * cosf(rad));
-    r.z = in.z;
+    r[0] = (in[0] * cosf(rad)) + (in[1] * (-(sinf(rad))));
+    r[1] = (in[0] * sinf(rad)) + (in[1] * cosf(rad));
+    r[2] = in[2];
     return r;
 }
 
 // Normalize a vector
 vec3 norm(vec3 in) {
     vec3 r = in;
-    float l = sqrtf((in.x * in.x) + (in.y * in.y) + (in.z * in.z));
+    float l = sqrtf((in[0] * in[0]) + (in[1] * in[1]) + (in[2] * in[2]));
     if(l != 0) {
         float il = 1/l;
-        r.x *= il;
-        r.y *= il;
-        r.z *= il;
+        r[0] *= il;
+        r[1] *= il;
+        r[2] *= il;
     }
     return r;
 }
 
 // Get the cross product of 2 vectors
 vec3 cross(vec3 v1, vec3 v2) {
-    vec3 r = {(v1.y * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z), (v1.x * v2.y) - (v1.y * v2.x)};
+    vec3 r = {(v1[1] * v2[2]) - (v1[2] * v2[1]), (v1[2] * v2[0]) - (v1[0] * v2[2]), (v1[0] * v2[1]) - (v1[1] * v2[0])};
     return r;
 }
 
 // Get the dot product of 2 vectors
 float dot(vec3 v1, vec3 v2) {
-    float r = ((v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z));
+    float r = ((v1[0] * v2[0]) + (v1[1] * v2[1]) + (v1[2] * v2[2]));
     return r;
 }
 
@@ -114,126 +104,58 @@ float dot(vec3 v1, vec3 v2) {
 // Functions for reading models
 
 // Read an OBJ model and load it into memory
-// Texture coordinates and normal indices are read but not loaded and ignored in faces for now
-// Does not support quad faces yet
-// User has to free vertex and face arrays themselves
-int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, int* ofaceamt, tcrd** tcrds, int* otcrdamt, nrmi** nrmis, int* onrmiamt) {
+int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, int* ofaceamt, tcrd** tcrds, int* otcrdamt) {
     FILE* obj = fopen(filename, "r");
     if(obj == NULL) {
         fprintf(stderr, "Failed to open file %s!\n", filename);
         return 0;
     }
 
-    int type;
-    int vtexamt = 0;
-    int faceamt = 0;
-    int tcrdamt = 0;
-    int nrmiamt = 0;
-
-    while(!feof(obj)) {
-        char line[500];
-        memset(line, 0, 500);
-        fgets(line, 500, obj);
-        if(line[strlen(line)] == '\n') line[strlen(line)] = ' ';
-        
-        switch(line[0]) {
+    while(1) {
+        int type = fgetc(obj);
+        switch(type) {
             case 'v':
             {
-                switch(line[1]) {
+                type = fgetc(obj);
+                switch(type) {
                     case ' ':
                     {
-                        vtexamt++;
-                        (*vtexs) = (vtex*)realloc((*vtexs), vtexamt * sizeof(vtex));
-                        char* curpar = line + 2;
-                        for(int i = 0; i < 3; i++) {
-                            char* eo = strchr(curpar, ' ');
-                            *eo = '\0';
-                            float v = (float)atof(curpar);
-                            switch(i) {
-                                case 0: (*vtexs)[vtexamt - 1].pos.x = v; break;
-                                case 1: (*vtexs)[vtexamt - 1].pos.y = v; break;
-                                case 2: (*vtexs)[vtexamt - 1].pos.z = v; break;
-                            }
-                            curpar = eo + 1;
-                        }
+                        //
                         break;
                     }
                     case 't':
                     {
-                        tcrdamt++;
-                        (*tcrds) = (tcrd*)realloc((*tcrds), tcrdamt * sizeof(tcrd));
-                        char* curpar = line + 3;
-                        for(int i = 0; i < 2; i++) { // TODO: Handle optional W value
-                            char* eo = strchr(curpar, ' ');
-                            *eo = '\0';
-                            float v = (float)atof(curpar);
-                            switch(i) {
-                                case 0: (*tcrds)[tcrdamt - 1].u = v; break;
-                                case 1: (*tcrds)[tcrdamt - 1].v = v; break;
-                            }
-                            curpar = eo + 1;
-                        }
+                        //
                         break;
                     }
                     case 'n':
                     {
-                        nrmiamt++;
-                        (*nrmis) = (nrmi*)realloc((*nrmis), nrmiamt * sizeof(nrmi));
-                        char* curpar = line + 3;
-                        for(int i = 0; i < 3; i++) {
-                            char* eo = strchr(curpar, ' ');
-                            *eo = '\0';
-                            float v = (float)atof(curpar);
-                            switch(i) {
-                                case 0: (*nrmis)[nrmiamt - 1].pos.x = v; break;
-                                case 1: (*nrmis)[nrmiamt - 1].pos.y = v; break;
-                                case 2: (*nrmis)[nrmiamt - 1].pos.z = v; break;
-                            }
-                            curpar = eo + 1;
-                        }
+                        //
                         break;
                     }
-                    default: continue; // TODO: Handle loading errors
                 }
                 break;
             }
             case 'f':
             {
-                faceamt++;
-                (*faces) = (face*)realloc((*faces), faceamt * sizeof(face));
-                char* curpar = line + 2;
-                char* tfv = strchr(curpar, '/');
-                int hasnrmis = 0;
-                int hastcrds = 0;
-                if(tfv != NULL) { // Check for optional values
-                    if(strchr(tfv + 1, '/') < strchr(tfv + 1, ' ')) {
-                        if(tfv[1] == '/') {
-                            hasnrmis = 1;
-                            hastcrds = 0;
-                        } else {
-                            hasnrmis = 1;
-                            hastcrds = 1;
-                        }
-                    } else {
-                        hasnrmis = 0;
-                        hastcrds = 1;
-                    }
-                } else {
-                    hasnrmis = 0;
-                    hastcrds = 0;
-                }
-                for(int i = 0; i < 3; i++) {
-                    char* eo = strchr(curpar, (hasnrmis | hastcrds)?'/':' ');
-                    *eo = '\0';
-                    int v = atoi(curpar) - 1;
-                    (*faces)[faceamt - 1].vtexs[i] = v;
-                    curpar = eo + 1;
-                    if(hastcrds) {
-                        v = atoi(*curpar);
-                    }
+                //
+                break;
+            }
+            case 'l':
+            {
+                //
+                break;
+            }
+            case '\n': continue;
+            case '#':
+            case 'g':
+            case 's':
+            {
+                int c = fgetc(obj);
+                while((c != '\n') || (c != EOF)) {
+                    c = fgetc(obj);
                 }
             }
-            default: continue; // TODO: Handle loading errors
         }
     }
 
@@ -269,12 +191,15 @@ int main(int argc, char **argv) {
     vec3* vtexs = NULL;
     int vtexamt;
 
-    int* faces = NULL;
+    face* faces = NULL;
     int faceamt;
+
+    tcrd* tcrds = NULL;
+    int tcrdamt;
     
     vec3 modelrotpos = {0, 0, 2};
 
-    load_obj(argv[1], &vtexs, &vtexamt, &faces, &faceamt); // TODO: return an error if this fails
+    load_obj(argv[1], &vtexs, &vtexamt, &faces, &faceamt, &tcrds, &tcrd); // TODO: return an error if this fails
 
     CNFGSetup("3D Renderer", (int)width, (int)height);
 
