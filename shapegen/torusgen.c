@@ -21,8 +21,8 @@ int main(int argc, char** argv) {
 
     const float hradius = (float)atof(argv[2]);
     const float rradius = (float)atof(argv[3]);
-    const int slices = atoi(argv[3]);
-    const int rings = atoi(argv[4]);
+    const int slices = atoi(argv[4]);
+    const int rings = atoi(argv[5]);
 
     FILE* obj = fopen(argv[1], "w");
 
