@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     for(int i = 0; i < rings; i++) {
         float p = (2 * PI) * (((float)i) / ((float)rings));
         for(int j = 0; j < slices; j++) {
-            float t = ((float)i) / ((float)slices);
+            float t = ((float)j) / ((float)slices);
             float tp = PI * t;
             float x = (hradius + ((rradius * 2) * sinf(tp))) * cosf(p);
             float y = (hradius + ((rradius * 2) * sinf(tp))) * sinf(p);
