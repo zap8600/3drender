@@ -16,12 +16,14 @@ typedef struct vec3 {
 typedef vec3 vtex;
 
 int main(int argc, char** argv) {
-    if(argc != 4) {
-        fprintf(stderr, "Usage: %s [output obj file] [slices] [rings]\n", argv[0]);
+    if(argc != 5) {
+        fprintf(stderr, "Usage: %s [output obj file] [radius] [slices] [rings]\n", argv[0]);
+        return 1;
     }
 
-    const int slices = (float)atoi(argv[2]); // The amount of parts around the y axis
-    const int rings = (float)atoi(argv[3]); // The amout of layer in between 1 and -1
+    const float radius = (float)atof(argv[2]); // The radius of the sphere
+    const int slices = atoi(argv[3]); // The amount of parts around the y axis
+    const int rings = atoi(argv[4]); // The amout of layer in between 1 and -1
 
     FILE* obj = fopen(argv[1], "w");
 
@@ -32,7 +34,7 @@ int main(int argc, char** argv) {
 
     // An optimization so that we don't need to calculate the top and bottom vertexs
     vtexs[0].x = 0;
-    vtexs[0].y = 1;
+    vtexs[0].y = radius;
     vtexs[0].z = 0;
 
     // Create a circle of different sizes at different Y levels, 0.5 being the biggest circle and ~1 and ~-1 being the smallest
@@ -40,9 +42,9 @@ int main(int argc, char** argv) {
         float p = PI * (((float)i + 1) / ((float)rings)); // Goes from 1 to -1, used for the Y level and the size of the circle
         for(int j = 0; j < slices; j++) {
             float t = (2 * PI) * (((float)j) / ((float)slices)); // Making the circle
-            float x = sinf(p) * cosf(t);
-            float y = cosf(p);
-            float z = sinf(p) * sinf(t);
+            float x = sinf(p) * (radius * cosf(t));
+            float y = radius * cosf(p);
+            float z = sinf(p) * (radius * sinf(t));
             vtexamt++;
             vtexs = (vtex*)realloc(vtexs, vtexamt * sizeof(vtex));
             vtexs[vtexamt - 1].x = x;
@@ -54,7 +56,7 @@ int main(int argc, char** argv) {
     vtexamt++;
     vtexs = (vtex*)realloc(vtexs, vtexamt * sizeof(vtex));
     vtexs[vtexamt - 1].x = 0;
-    vtexs[vtexamt - 1].y = -1;
+    vtexs[vtexamt - 1].y = -radius;
     vtexs[vtexamt - 1].z = 0;
 
     for(int i = 0; i < vtexamt; i++) {
