@@ -20,8 +20,8 @@ int main(int argc, char** argv) {
         fprintf(stderr, "Usage: %s [output obj file] [slices] [rings]\n", argv[0]);
     }
 
-    const float slices = (float)atoi(argv[2]); // The amount of parts around the y axis
-    const float rings = (float)atoi(argv[3]); // The amout of layer in between 1 and -1
+    const int slices = (float)atoi(argv[2]); // The amount of parts around the y axis
+    const int rings = (float)atoi(argv[3]); // The amout of layer in between 1 and -1
 
     FILE* obj = fopen(argv[1], "w");
 
@@ -37,9 +37,9 @@ int main(int argc, char** argv) {
 
     // Create a circle of different sizes at different Y levels, 0.5 being the biggest circle and ~1 and ~-1 being the smallest
     for(int i = 0; i < rings; i++) {
-        float p = PI * (((float)i + 1) / rings); // Goes from 1 to -1, used for the Y level and the size of the circle
+        float p = PI * (((float)i + 1) / ((float)rings)); // Goes from 1 to -1, used for the Y level and the size of the circle
         for(int j = 0; j < slices; j++) {
-            float t = (2 * PI) * (((float)j) / slices); // Making the circle
+            float t = (2 * PI) * (((float)j) / ((float)slices)); // Making the circle
             float x = sinf(p) * cosf(t);
             float y = cosf(p);
             float z = sinf(p) * sinf(t);
@@ -57,11 +57,36 @@ int main(int argc, char** argv) {
     vtexs[vtexamt - 1].y = -1;
     vtexs[vtexamt - 1].z = 0;
 
-    for(int i = 1; i < slices + 1; i++) {
+    for(int i = 0; i < vtexamt; i++) {
+        fprintf(obj, "v %.*f %.*f %.*f\n", FLT_DECIMAL_DIG, vtexs[i].x, FLT_DECIMAL_DIG, vtexs[i].y, FLT_DECIMAL_DIG, vtexs[i].z);
+    }
+
+    free(vtexs);
+
+    // Add the top and bottom triangles
+    for(int i = 0; i < slices; i++) {
         int v1 = i + 1;
-        int v2 = (i + 1) % (slices + 1); // Next vertex over
+        int v2 = ((i + 1) % slices) + 1; // Next vertex over
+        fprintf(obj, "f 1 %d %d\n", v1 + 1, v2 + 1); // Adding one since the vertex array in an obj starts at 1 instead of 0
+        v1 = (i + (slices * (rings - 2))) + 1; // Subtract 2 from rings to exclude the top and bottom
+        v2 = (((i + 1) % slices) + (slices * (rings - 2))) + 1;
+        fprintf(obj, "f %d %d %d\n", vtexamt, v1 + 1, v2 + 1);
+    }
+
+    // Add the squares per ring / slice
+    for(int i = 0; i < rings - 2; i++) {
+        int i0 = (i * rings) + 1;
+        int i1 = ((i + 1) * rings) + 1;
+        for(int j = 0; j < slices; j++) {
+            int v1 = i0 + j;
+            int v2 = i0 + ((j + 1) % slices);
+            int v3 = i1 + ((j + 1) % slices);
+            int v4 = i1 + j;
+            fprintf(obj, "f %d %d %d\n", v1 + 1, v2 + 1, v4 + 1);
+            fprintf(obj, "f %d %d %d\n", v4 + 1, v3 + 1, v2 + 1);
+        }
     }
 
     fclose(obj);
-    free(vtex);
+    return 0;
 }
