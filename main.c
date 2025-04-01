@@ -176,6 +176,9 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
                         }
                     }
                     int v = atoi(buf) - 1; // We need to subtract one because the obj vertex arra starts at 1 instead of 0
+                    if(v >= vtexamt) {
+                        fprintf(stderr, "vtexamt is %d, but index is %d\n", vtexamt, v);
+                    }
                     (*faces)[((faceamt - 1) * 3) + i] = v;
                     bufptr = buf;
                 }
@@ -260,7 +263,6 @@ int main(int argc, char **argv) {
 
         // Rotate the model around the y axis 90 degrees per second
         // Time is tracked by measuring how long the last frame was
-        // Will not rotate when the window is being moved, but will jump to the new rotation when movement stops
         for(int i = 0; i < vtexamt; i++) {
             vtexs[i] = roty(vtexs[i], delta*(0.5*PI));
         }

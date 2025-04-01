@@ -16,14 +16,14 @@ typedef struct vec3 {
 typedef vec3 vtex;
 
 int main(int argc, char** argv) {
-    if(argc != 5) {
-        fprintf(stderr, "Usage: %s [output obj file] [radius] [slices] [rings]\n", argv[0]);
+    if(argc != 4) {
+        fprintf(stderr, "Usage: %s [output obj file] [radius] [slices]\n", argv[0]);
         return 1;
     }
 
     const float radius = (float)atof(argv[2]); // The radius of the sphere
     const int slices = atoi(argv[3]); // The amount of parts around the y axis
-    const int rings = atoi(argv[4]); // The amout of layer in between 1 and -1
+    const int rings = atoi(argv[3]); // The amout of layer in between 1 and -1
 
     FILE* obj = fopen(argv[1], "w");
 

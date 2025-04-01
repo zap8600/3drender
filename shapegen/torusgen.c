@@ -14,15 +14,15 @@ typedef struct vec3 {
 typedef vec3 vtex;
 
 int main(int argc, char** argv) {
-    if(argc != 6) {
-        fprintf(stderr, "Usage: %s [output obj file] [hole radius] [ring radius] [slices] [rings]\n", argv[0]);
+    if(argc != 5) {
+        fprintf(stderr, "Usage: %s [output obj file] [hole radius] [ring radius] [slices]\n", argv[0]);
         return 1;
     }
 
     const float hradius = (float)atof(argv[2]);
     const float rradius = (float)atof(argv[3]);
     const int slices = atoi(argv[4]);
-    const int rings = atoi(argv[5]);
+    const int rings = atoi(argv[4]);
 
     FILE* obj = fopen(argv[1], "w");
 
@@ -32,11 +32,10 @@ int main(int argc, char** argv) {
     for(int i = 0; i < rings; i++) {
         float p = (2 * PI) * (((float)i) / ((float)rings));
         for(int j = 0; j < slices; j++) {
-            float t = ((float)j) / ((float)slices);
-            float tp = PI * t;
-            float x = (hradius + ((rradius * 2) * sinf(tp))) * cosf(p);
-            float y = (hradius + ((rradius * 2) * sinf(tp))) * sinf(p);
-            float z = rradius * sinf((2 * PI) * t);
+            float t = (2 * PI) * ((float)j) / ((float)slices);
+            float x = ((hradius + rradius) + (rradius * cosf(t))) * cosf(p);
+            float y = rradius * sinf(t);
+            float z = ((hradius + rradius) + (rradius * cosf(t))) * sinf(p);
             vtexamt++;
             vtexs = (vtex*)realloc(vtexs, vtexamt * sizeof(vtex));
             vtexs[vtexamt - 1].x = x;
@@ -53,7 +52,7 @@ int main(int argc, char** argv) {
 
     for(int i = 0; i < rings; i++) {
         int i0 = i * rings;
-        int i1 = (i + 1) * rings;
+        int i1 = ((i + 1) % rings) * rings;
         for(int j = 0; j < slices; j++) {
             int v1 = i0 + j;
             int v2 = i0 + ((j + 1) % slices);
