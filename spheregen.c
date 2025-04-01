@@ -3,7 +3,7 @@
 #include <math.h>
 #include <float.h>
 
-// https://danielsieger.com/blog/2021/03/27/generating-spheres.html#:~:text=The%20basic%20approach%20is%20to,and%20quadrilateral%20elements%20everywhere%20else.
+// Took some time to figure out how sin and cos make circles and spheres... let's hope my math is right
 
 #define PI 3.14159265358979323846f
 
@@ -20,49 +20,20 @@ int main(int argc, char** argv) {
         fprintf(stderr, "Usage: %s [output obj file] [slices] [rings]\n", argv[0]);
     }
 
+    const float slices = (float)atoi(argv[2]); // The amount of parts around the y axis
+    const float rings = (float)atoi(argv[3]); // The amout of layer in between 1 and -1
+
     FILE* obj = fopen(argv[1], "w");
 
-    vtex* vtexs = malloc(sizeof(vtexs));
+    // First I need to set up an array for the vertexs
+    vtex* vtexs = (vtex*)malloc(sizeof(vtex));
+    // I also need to keep track of how many I have so far
     int vtexamt = 1;
 
-    vtexs[0].x = 0;
-    vtexs[0].y = 1;
-    vtexs[0].z = 0;
-
-    const int slices = atoi(argv[2]);
-    const int rings = atoi(argv[3]);
-
     for(int i = 0; i < rings; i++) {
-        float p = PI * ((float)(i + 1)) / ((float)rings);
-        for(int j = 0; j < slices; j++) {
-            float t = 2 * PI * ((float)j) / ((float)slices);
-            float x = sinf(p) * cosf(t);
-            float y = cosf(p);
-            float z = sinf(p) * sinf(t);
-            vtexamt++;
-            vtexs = (vtex*)realloc(vtexs, vtexamt * sizeof(vtex));
-            vtexs[vtexamt - 1].x = x;
-            vtexs[vtexamt - 1].y = y;
-            vtexs[vtexamt - 1].z = z;
-        }
-    }
-
-    vtexamt++;
-    vtexs = (vtex*)realloc(vtexs, vtexamt * sizeof(vtex));
-    vtexs[vtexamt - 1].x = 0;
-    vtexs[vtexamt - 1].y = -1;
-    vtexs[vtexamt - 1].z = 0;
-
-    for(int i = 0; i < vtexamt; i++) {
-        fprintf(obj, "v %.*f %.*f %.*f\n", FLT_DECIMAL_DIG, vtexs[i].x, FLT_DECIMAL_DIG, vtexs[i].y, FLT_DECIMAL_DIG, vtexs[i].z);
-    }
-
-    for(int i = 0; i < slices; i++) {
-        int i0 = i + 1;
-        int i1 = (i + 1) % slices + 1;
-        fprintf(obj, "f ");
+        float p;
     }
 
     fclose(obj);
-    free(vtexs);
+    free(vtex);
 }
