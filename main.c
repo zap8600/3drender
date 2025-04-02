@@ -196,7 +196,7 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
                     }
                     fvtexamt++;
                     printf("Reallocating .vtexs for vtex %d\n", fvtexamt);
-                    (*faces)[faceamt - 1].vtexs = (int*)realloc((*faces)[faceamt - 1].vtexs, fvtexamt * sizeof(int));
+                    (*faces)[faceamt - 1].vtexs = (int*)realloc(((*faces)[faceamt - 1].vtexs), fvtexamt * sizeof(int));
                     printf("Reallocated .vtexs\n");
                     int v = atoi(buf) - 1; // We need to subtract one because the obj vertex arra starts at 1 instead of 0
                     if(v >= vtexamt) {
