@@ -126,7 +126,9 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
                 switch(type) {
                     case ' ': {
                         vtexamt++;
+                        printf("Reallocating (*vtexs) for vtex %d\n", vtexamt);
                         (*vtexs) = (vtex*)realloc((*vtexs), vtexamt * sizeof(vtex));
+                        printf("Reallocated (*vtexs)\n");
 
                         char buf[100];
                         char* bufptr = buf;
