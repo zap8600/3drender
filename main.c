@@ -364,6 +364,8 @@ int main(int argc, char **argv) {
                     CNFGColor(0x00ff00ff);
                     CNFGTackPixel(xp, yp);
                     CNFGColor(0xffffffff);
+                } else {
+                    CNFGTackPixel(xp, yp);
                 }
             }
 
