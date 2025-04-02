@@ -173,7 +173,9 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
                 fseek(obj, 1, SEEK_CUR);
 
                 faceamt++;
+                printf("Reallocating (*faces) for face %d\n", faceamt);
                 (*faces) = (face*)realloc((*faces), faceamt * sizeof(face));
+                printf("Reallocated (*faces)\n");
 
                 char buf[100];
                 char* bufptr = buf;
