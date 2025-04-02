@@ -126,9 +126,7 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
                 switch(type) {
                     case ' ': {
                         vtexamt++;
-                        printf("Reallocating (*vtexs) for vtex %d\n", vtexamt);
                         (*vtexs) = (vtex*)realloc((*vtexs), vtexamt * sizeof(vtex));
-                        printf("Reallocated (*vtexs)\n");
 
                         char buf[100];
                         char* bufptr = buf;
@@ -173,9 +171,7 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
                 fseek(obj, 1, SEEK_CUR);
 
                 faceamt++;
-                printf("Reallocating (*faces) for face %d\n", faceamt);
                 (*faces) = (face*)realloc((*faces), faceamt * sizeof(face));
-                printf("Reallocated (*faces)\n");
                 (*faces)[faceamt - 1].vtexs = NULL;
 
                 char buf[100];
@@ -196,9 +192,7 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
                         }
                     }
                     fvtexamt++;
-                    printf("Reallocating .vtexs for vtex %d\n", fvtexamt);
-                    (*faces)[faceamt - 1].vtexs = (int*)realloc(((*faces)[faceamt - 1].vtexs), fvtexamt * sizeof(int));
-                    printf("Reallocated .vtexs\n");
+                    (*faces)[faceamt - 1].vtexs = (int*)realloc((*faces)[faceamt - 1].vtexs, fvtexamt * sizeof(int));
                     int v = atoi(buf) - 1; // We need to subtract one because the obj vertex arra starts at 1 instead of 0
                     if(v >= vtexamt) {
                         fprintf(stderr, "vtexamt is %d, but index is %d\n", vtexamt, v);
@@ -271,9 +265,7 @@ int main(int argc, char **argv) {
     
     vec3 modelrotpos = {0, 0, 0};
 
-    printf("Loading model\n");
     load_obj(argv[1], &vtexs, &vtexamt, &faces, &faceamt); // TODO: return an error if this fails
-    printf("%d faces\n", faceamt);
 
     CNFGSetup("3D Renderer", (int)width, (int)height);
 
