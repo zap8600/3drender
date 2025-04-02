@@ -367,6 +367,9 @@ int main(int argc, char **argv) {
                 CNFGTackSegment(xps[j], yps[j], xps[(j + 1) % fvtexamt], yps[(j + 1) % fvtexamt]);
             }
 
+            CNFGColor(0x00ff00ff);
+            CNFGTackPixel(xps[fvtexamt - 1], yps[fvtexamt - 1]);
+
             free(xps);
             free(yps);
         }
