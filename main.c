@@ -107,7 +107,7 @@ float dot(vec3 v1, vec3 v2) {
 
 // Read an OBJ model and load it into memory
 // User has to free vertex and face arrays themselves
-int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, int* ofaceamt) {
+int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, int* ofaceamt) {
     FILE* obj = fopen(filename, "rb");
     if(obj == NULL) {
         fprintf(stderr, "Failed to open file %s!\n", filename);
@@ -126,7 +126,7 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, in
                 switch(type) {
                     case ' ': {
                         vtexamt++;
-                        (*vtexs) = (vec3*)realloc((*vtexs), vtexamt * sizeof(vec3));
+                        (*vtexs) = (vtex*)realloc((*vtexs), vtexamt * sizeof(vtex));
 
                         char buf[100];
                         char* bufptr = buf;
@@ -256,7 +256,7 @@ int main(int argc, char **argv) {
     const float fnnf2 = ((2*zf)*zn)/(zn-zf);
 
     // Model loading
-    vec3* vtexs = NULL;
+    vtex* vtexs = NULL;
     int vtexamt;
 
     face* faces = NULL;
