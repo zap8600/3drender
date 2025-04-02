@@ -359,6 +359,12 @@ int main(int argc, char **argv) {
 
                 xps[j] = xp;
                 yps[j] = yp;
+
+                if((faces[i].vtexs.[j] + 1) == vtexamt) {
+                    CNFGColor(0x00ff00ff);
+                    CNFGTackPixel(xp, yp);
+                    CNFGColor(0xffffffff);
+                }
             }
 
             const int fvtexamt = faces[i].vtexamt;
@@ -366,10 +372,6 @@ int main(int argc, char **argv) {
                 //CNFGTackPixel(xps[j], yps[j]);
                 //CNFGTackSegment(xps[j], yps[j], xps[(j + 1) % fvtexamt], yps[(j + 1) % fvtexamt]);
             }
-
-            CNFGColor(0x00ff00ff);
-            CNFGTackPixel(xps[fvtexamt - 1], yps[fvtexamt - 1]);
-            CNFGColor(0xffffffff);
 
             free(xps);
             free(yps);
