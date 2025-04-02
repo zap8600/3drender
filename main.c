@@ -12,7 +12,7 @@ void HandleKey(int keycode, int bDown) {}
 void HandleButton(int x, int y, int button, int bDown) {}
 // Not sure how I use this to get mouse motion but I'll try
 void HandleMotion( int x, int y, int mask ) {
-    printf("%d %d %04x\n", x, y, mask);
+    printf("%d %d %x\n", x, y, mask);
 }
 int HandleDestroy() { return 0; }
 
