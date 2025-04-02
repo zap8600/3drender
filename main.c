@@ -12,7 +12,7 @@ void HandleKey(int keycode, int bDown) {}
 void HandleButton(int x, int y, int button, int bDown) {}
 // Not sure how I use this to get mouse motion but I'll try
 void HandleMotion( int x, int y, int mask ) {
-    //printf("%d %d %x\n", x, y, mask);
+    printf("%d %d %x\n", x, y, mask);
 }
 int HandleDestroy() { return 0; }
 
@@ -129,13 +129,13 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, in
                         (*vtexs) = (vec3*)realloc((*vtexs), vtexamt * sizeof(vec3));
 
                         char buf[100];
-                        char* bufptr = buf;
                         for(int i = 0; i < 3; i++) {
+                            int counter = 0;
                             while(1) {
                                 int c = fgetc(obj);
-                                *bufptr++ = (char)c;
+                                buf[counter++] = (char)c;
                                 if((c == ' ') || (c == '\n')) {
-                                    *bufptr = '\0';
+                                    buf[counter] = '\0';
                                     break;
                                 }
                             }
@@ -145,7 +145,6 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, in
                                 case 1: (*vtexs)[vtexamt - 1].y = v; break;
                                 case 2: (*vtexs)[vtexamt - 1].z = v; break;
                             }
-                            bufptr = buf;
                         }
                         break;
                     }
@@ -174,19 +173,19 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, in
                 (*faces) = (face*)realloc((*faces), faceamt * sizeof(face));
 
                 char buf[100];
-                char* bufptr = buf;
                 int fvtexamt = 0;
                 bool stillvtex = true;
                 while(stillvtex) {
+                    int counter = 0;
                     while(1) {
                         int c = fgetc(obj);
-                        *bufptr++ = (char)c;
+                        buf[counter++] = (char)c;
                         if(c == ' ') {
-                            *bufptr = '\0';
+                            buf[counter] = '\0';
                             break;
                         } else if((c == '\n') || (c == EOF)) {
                             stillvtex = false;
-                            *bufptr = '\0';
+                            buf[counter] = '\0';
                             break;
                         }
                     }
@@ -197,7 +196,6 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, in
                         fprintf(stderr, "vtexamt is %d, but index is %d\n", vtexamt, v);
                     }
                     (*faces)[faceamt - 1].vtexs[fvtexamt - 1] = v;
-                    bufptr = buf;
                 }
                 (*faces)[faceamt - 1].vtexamt = fvtexamt;
                 break;
