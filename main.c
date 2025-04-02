@@ -231,37 +231,10 @@ const vec3 up = {0, 1, 0};
 const vec3 realmodelpos = {0, 0, 3};
 vec3 camerapos = {0, 4, 0};
 
-
 float width = 512;
 float height = 512;
 
-int lastx = 0;
-int lasty = 0;
-bool holding = false;
-
-void HandleMotion( int x, int y, int mask ) {
-    //printf("%d %d %x\n", x, y, mask);
-    if(mask == 1) {
-        if(!holding) {
-            holding = true;
-        } else {
-            int checkx = x - lastx;
-            int checky = y - lasty;
-
-            vec3 rpos = sub(camerapos, realmodelpos);
-            rpos = roty(rpos, (-PI)*((((float)checkx)) / width));
-            rpos = rotx(rpos, PI*(((float)checky) / height));
-            camerapos = add(rpos, realmodelpos);
-        }
-
-        lastx = x;
-        lasty = y;
-    } else if(!mask) {
-        if(holding) {
-            holding = false;
-        }
-    }
-}
+void HandleMotion( int x, int y, int mask ) {}
 
 
 int main(int argc, char **argv) {
@@ -275,7 +248,7 @@ int main(int argc, char **argv) {
     float aspect = width/height; // 1
 
     const float zn = 1;
-    const float zf = 10;
+    const float zf = 100;
 
     const float tof = tanf(fov/2);
     float atf = 1/(aspect*tof);
@@ -337,7 +310,7 @@ int main(int argc, char **argv) {
                 float vtexz = cvtex.z;
                 float w = 1;
 
-                vec3 za = norm(sub(camerapos, add(modelrotpos, realmodelpos)));
+                vec3 za = norm(sub(camerapos, realmodelpos));
                 vec3 xa = norm(cross(up, za));
                 vec3 ya = cross(za, xa);
 
