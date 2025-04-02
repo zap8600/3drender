@@ -243,10 +243,21 @@ void HandleMotion( int x, int y, int mask ) {
     if(mask == 1) {
         if(!holding) {
             holding = true;
-            lastx = x;
-            lasty = y;
         } else {
-            //
+            int checkx = x - lastx;
+            int checky = y - lasty;
+
+            vec3 rpos = sub(camerapos, realmodelpos);
+            rpos = roty(rpos, (-PI)*((((float)checkx)) / width));
+            rpos = rotx(rpos, PI*(((float)checky) / height));
+            camerapos = add(rpos, realmodelpos);
+        }
+
+        lastx = x;
+        lasty = y;
+    } else if(!mask) {
+        if(holding) {
+            holding = false;
         }
     }
 }
