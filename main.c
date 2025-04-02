@@ -234,7 +234,31 @@ vec3 camerapos = {0, 4, 0};
 float width = 512;
 float height = 512;
 
-void HandleMotion( int x, int y, int mask ) {}
+int lastx = 0;
+int lasty = 0;
+bool holding = false;
+
+void HandleMotion( int x, int y, int mask ) {
+    if(mask == 1) {
+        if(!holding) {
+            holding = true;
+        } else {
+            float dx = ((float)(x - lastx)) / width;
+            float dy = ((float)(y - lasty)) / height;
+
+            vec3 tpos = sub(camerapos, realmodelpos);
+            tpos = rotx(tpos, PI*dy);
+            camerapos = add(tpos, realmodelpos);
+        }
+
+        lastx = x;
+        lasty = y;
+    } else if(!mask) {
+        if(holding) {
+            holding = false;
+        }
+    }
+}
 
 
 int main(int argc, char **argv) {
@@ -311,7 +335,7 @@ int main(int argc, char **argv) {
                 float w = 1;
 
                 vec3 za = norm(sub(camerapos, realmodelpos));
-                vec3 xa = norm(cross(up, za));
+                vec3 xa = norm(cross(za, up));
                 vec3 ya = cross(za, xa);
 
                 // Convert from world space to camera space
