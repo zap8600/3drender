@@ -10,12 +10,6 @@
 
 void HandleKey(int keycode, int bDown) {}
 void HandleButton(int x, int y, int button, int bDown) {}
-// Not sure how I use this to get mouse motion but I'll try
-void HandleMotion( int x, int y, int mask ) {
-    printf("%d %d %x\n", x, y, mask);
-}
-int HandleDestroy() { return 0; }
-
 
 #define PI 3.14159265358979323846f
 #define DEG2RAD (PI/180.0f)
@@ -236,6 +230,28 @@ const vec3 up = {0, 1, 0};
 const vec3 realmodelpos = {0, 0, 3};
 vec3 camerapos = {0, 4, 0};
 
+
+float width = 512;
+float height = 512;
+
+int lastx = 0;
+int lasyy = 0;
+bool holding = false;
+
+void HandleMotion( int x, int y, int mask ) {
+    //printf("%d %d %x\n", x, y, mask);
+    if(mask == 1) {
+        if(!holding) {
+            holding = true;
+            lastx = x;
+            lasty = y;
+        } else {
+            //
+        }
+    }
+}
+
+
 int main(int argc, char **argv) {
     if(argc != 2) {
         fprintf(stderr, "Usage: %s [obj model file path]\n", argv[0]);
@@ -243,16 +259,15 @@ int main(int argc, char **argv) {
     }
 
     // Precomputing math required for rendering
-    const float width = 512;
-    const float height = 512;
 
-    const float aspect = width/height; // 1
+    float aspect = width/height; // 1
 
     const float zn = 1;
     const float zf = 10;
 
-    const float atf = 1/(aspect*tanf(fov/2));
-    const float tf = 1/tanf(fov/2);
+    const float tof = tanf(fov/2);
+    float atf = 1/(aspect*tof);
+    const float tf = 1/tof;
     const float fnnf = (zf+zn)/(zn-zf);
     const float fnnf2 = ((2*zf)*zn)/(zn-zf);
 
@@ -274,6 +289,15 @@ int main(int argc, char **argv) {
     while(CNFGHandleInput()) {
         CNFGClearFrame();
         CNFGColor(0xffffffff);
+        short w;
+        short h;
+        CNFGGetDimensions(&w, &h);
+        if((width != (float)w) || (height != (float)h)) { // Only recalculate when needed
+            width = (float)w;
+            height = (float)h;
+            aspect = width/height;
+            atf = 1/(aspect*tof);
+        }
 
         clock_t now = clock();
         float delta = ((float)(now - lasttime)) / CLOCKS_PER_SEC;
