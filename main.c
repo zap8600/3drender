@@ -129,13 +129,13 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, in
                         (*vtexs) = (vec3*)realloc((*vtexs), vtexamt * sizeof(vec3));
 
                         char buf[100];
+                        char* bufptr = buf;
                         for(int i = 0; i < 3; i++) {
-                            int counter = 0;
                             while(1) {
                                 int c = fgetc(obj);
-                                buf[counter++] = (char)c;
+                                *bufptr++ = (char)c;
                                 if((c == ' ') || (c == '\n')) {
-                                    buf[counter] = '\0';
+                                    *bufptr = '\0';
                                     break;
                                 }
                             }
@@ -145,6 +145,7 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, in
                                 case 1: (*vtexs)[vtexamt - 1].y = v; break;
                                 case 2: (*vtexs)[vtexamt - 1].z = v; break;
                             }
+                            bufptr = buf;
                         }
                         break;
                     }
@@ -173,19 +174,19 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, in
                 (*faces) = (face*)realloc((*faces), faceamt * sizeof(face));
 
                 char buf[100];
+                char* bufptr = buf;
                 int fvtexamt = 0;
                 bool stillvtex = true;
                 while(stillvtex) {
-                    int counter = 0;
                     while(1) {
                         int c = fgetc(obj);
-                        buf[counter++] = (char)c;
+                        *bufptr++ = (char)c;
                         if(c == ' ') {
-                            buf[counter] = '\0';
+                            *bufptr = '\0';
                             break;
                         } else if((c == '\n') || (c == EOF)) {
                             stillvtex = false;
-                            buf[counter] = '\0';
+                            *bufptr = '\0';
                             break;
                         }
                     }
@@ -196,6 +197,7 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, in
                         fprintf(stderr, "vtexamt is %d, but index is %d\n", vtexamt, v);
                     }
                     (*faces)[faceamt - 1].vtexs[fvtexamt - 1] = v;
+                    bufptr = buf;
                 }
                 (*faces)[faceamt - 1].vtexamt = fvtexamt;
                 break;
