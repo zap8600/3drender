@@ -5,6 +5,7 @@
         "time.h": "c",
         "stdio.h": "c",
         "math.h": "c",
-        "float.h": "c"
+        "float.h": "c",
+        "stdlib.h": "c"
     }
 }

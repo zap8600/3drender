@@ -84,8 +84,7 @@ int main(int argc, char** argv) {
             int v2 = i0 + ((j + 1) % slices);
             int v3 = i1 + ((j + 1) % slices);
             int v4 = i1 + j;
-            fprintf(obj, "f %d %d %d\n", v1 + 1, v2 + 1, v4 + 1);
-            fprintf(obj, "f %d %d %d\n", v4 + 1, v3 + 1, v2 + 1);
+            fprintf(obj, "f %d %d %d %d\n", v1 + 1, v2 + 1, v3 + 1, v4 + 1);
         }
     }
 

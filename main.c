@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
@@ -24,6 +25,13 @@ typedef struct vec3 {
     float y;
     float z;
 } vec3;
+
+typedef vec3 vtex;
+
+typedef struct face {
+    int* vtexs;
+    int vtexamt;
+} face;
 
 // Functions for manipulating 3D points
 
@@ -98,7 +106,7 @@ float dot(vec3 v1, vec3 v2) {
 // Texture coordinates and normal indices are read but not loaded and ignored in faces for now
 // Does not support quad faces yet
 // User has to free vertex and face arrays themselves
-int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int* ofaceamt) {
+int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, int* ofaceamt) {
     FILE* obj = fopen(filename, "rb");
     if(obj == NULL) {
         fprintf(stderr, "Failed to open file %s!\n", filename);
@@ -162,26 +170,35 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
                 fseek(obj, 1, SEEK_CUR);
 
                 faceamt++;
-                (*faces) = (int*)realloc((*faces), (faceamt * 3) * sizeof(int));
+                (*faces) = (face*)realloc((*faces), faceamt * sizeof(face));
 
                 char buf[100];
                 char* bufptr = buf;
-                for(int i = 0; i < 3; i++) {
+                int fvtexamt = 0;
+                bool stillvtex = true;
+                while(stillvtex) {
                     while(1) {
                         int c = fgetc(obj);
                         *bufptr++ = (char)c;
-                        if((c == ' ') || (c == '\n') || (c == EOF)) {
+                        if(c == ' ') {
+                            *bufptr = '\0';
+                            break;
+                        } else if((c == '\n') || (c == EOF)) {
+                            stillvtex = false;
                             *bufptr = '\0';
                             break;
                         }
                     }
+                    fvtexamt++;
+                    (*faces)[faceamt - 1].vtexs = (int*)realloc((*faces)[faceamt - 1].vtexs, fvtexamt * sizeof(int));
                     int v = atoi(buf) - 1; // We need to subtract one because the obj vertex arra starts at 1 instead of 0
                     if(v >= vtexamt) {
                         fprintf(stderr, "vtexamt is %d, but index is %d\n", vtexamt, v);
                     }
-                    (*faces)[((faceamt - 1) * 3) + i] = v;
+                    (*faces)[faceamt - 1].vtexs[fvtexamt - 1] = v;
                     bufptr = buf;
                 }
+                (*faces)[faceamt - 1].vtexamt = fvtexamt;
                 break;
             }
             case '\n': continue;
@@ -204,6 +221,8 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
 
     fclose(obj);
 
+    printf("%d faces, %d vtexs\n", vtexamt, faceamt);
+
     *ovtexamt = vtexamt;
     *ofaceamt = faceamt;
 
@@ -213,11 +232,11 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, int** faces, int
 
 const vec3 up = {0, 1, 0};
 const vec3 realmodelpos = {0, 0, 3};
-const vec3 camerapos = {0, 3, 0};
+const vec3 camerapos = {0, 4, 0};
 
 int main(int argc, char **argv) {
     if(argc != 2) {
-        fprintf(stderr, "Usage: %s [obj model file pathe]\n", argv[0]);
+        fprintf(stderr, "Usage: %s [obj model file path]\n", argv[0]);
         return 1;
     }
 
@@ -239,12 +258,13 @@ int main(int argc, char **argv) {
     vec3* vtexs = NULL;
     int vtexamt;
 
-    int* faces = NULL;
+    face* faces = NULL;
     int faceamt;
     
     vec3 modelrotpos = {0, 0, 0};
 
     load_obj(argv[1], &vtexs, &vtexamt, &faces, &faceamt); // TODO: return an error if this fails
+    printf("%d faces\n", faceamt);
 
     CNFGSetup("3D Renderer", (int)width, (int)height);
 
@@ -268,12 +288,13 @@ int main(int argc, char **argv) {
         }
 
         // Compute pixel coordinates of the points and draw lines
-        for(int i = 0; i < faceamt * 3; i += 3) {
-            int xps[3];
-            int yps[3];
+        for(int i = 0; i < faceamt; i++) {
+            //printf("Face %d has %d vtexs\n", i + 1, faces[i].vtexamt);
+            int* xps = (int*)malloc(faces[i].vtexamt * sizeof(int));
+            int* yps = (int*)malloc(faces[i].vtexamt * sizeof(int));
 
-            for(int j = 0; j < 3; j++) {
-                vec3 cvtex = add(add(vtexs[faces[i + j]], modelrotpos), realmodelpos);
+            for(int j = 0; j < faces[i].vtexamt; j++) {
+                vec3 cvtex = add(add(vtexs[faces[i].vtexs[j]], modelrotpos), realmodelpos);
                 float vtexx = cvtex.x;
                 float vtexy = cvtex.y;
                 float vtexz = cvtex.z;
@@ -306,9 +327,14 @@ int main(int argc, char **argv) {
                 yps[j] = yp;
             }
 
-            CNFGTackSegment(xps[0], yps[0], xps[1], yps[1]);
-            CNFGTackSegment(xps[1], yps[1], xps[2], yps[2]);
-            CNFGTackSegment(xps[2], yps[2], xps[0], yps[0]);
+            const int fvtexamt = faces[i].vtexamt;
+            for(int j = 0; j < fvtexamt; j++) {
+                //CNFGTackPixel(xps[j], yps[j]);
+                CNFGTackSegment(xps[j], yps[j], xps[(j + 1) % fvtexamt], yps[(j + 1) % fvtexamt]);
+            }
+
+            free(xps);
+            free(yps);
         }
 
         CNFGSwapBuffers();
