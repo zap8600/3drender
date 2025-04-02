@@ -10,6 +10,7 @@
 
 void HandleKey(int keycode, int bDown) {}
 void HandleButton(int x, int y, int button, int bDown) {}
+int HandleDestroy() { return 0; }
 
 #define PI 3.14159265358979323846f
 #define DEG2RAD (PI/180.0f)
