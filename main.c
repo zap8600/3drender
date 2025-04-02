@@ -364,7 +364,7 @@ int main(int argc, char **argv) {
             const int fvtexamt = faces[i].vtexamt;
             for(int j = 0; j < fvtexamt; j++) {
                 //CNFGTackPixel(xps[j], yps[j]);
-                CNFGTackSegment(xps[j], yps[j], xps[(j + 1) % fvtexamt], yps[(j + 1) % fvtexamt]);
+                //CNFGTackSegment(xps[j], yps[j], xps[(j + 1) % fvtexamt], yps[(j + 1) % fvtexamt]);
             }
 
             CNFGColor(0x00ff00ff);
