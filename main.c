@@ -369,6 +369,7 @@ int main(int argc, char **argv) {
 
             CNFGColor(0x00ff00ff);
             CNFGTackPixel(xps[fvtexamt - 1], yps[fvtexamt - 1]);
+            CNFGColor(0xffffffff);
 
             free(xps);
             free(yps);
