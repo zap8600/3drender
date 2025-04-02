@@ -249,7 +249,7 @@ void HandleMotion( int x, int y, int mask ) {
             int checky = y - lasty;
 
             vec3 rpos = sub(camerapos, realmodelpos);
-            //rpos = roty(rpos, (-PI)*((((float)checkx)) / width));
+            rpos = roty(rpos, (-PI)*((((float)checkx)) / width));
             rpos = rotx(rpos, PI*(((float)checky) / height));
             camerapos = add(rpos, realmodelpos);
         }
