@@ -360,7 +360,7 @@ int main(int argc, char **argv) {
                 xps[j] = xp;
                 yps[j] = yp;
 
-                if((faces[i].vtexs.[j] + 1) == vtexamt) {
+                if((faces[i].vtexs[j] + 1) == vtexamt) {
                     CNFGColor(0x00ff00ff);
                     CNFGTackPixel(xp, yp);
                     CNFGColor(0xffffffff);
