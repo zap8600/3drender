@@ -235,7 +235,7 @@ float width = 512;
 float height = 512;
 
 int lastx = 0;
-int lasyy = 0;
+int lasty = 0;
 bool holding = false;
 
 void HandleMotion( int x, int y, int mask ) {
