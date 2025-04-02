@@ -336,7 +336,7 @@ int main(int argc, char **argv) {
 
                 vec3 za = norm(sub(camerapos, realmodelpos));
                 vec3 xa = norm(cross(za, up));
-                vec3 ya = cross(za, xa);
+                vec3 ya = cross(xa, za);
 
                 // Convert from world space to camera space
                 vtexx = (vtexx * xa.x) + (vtexy * xa.y) + (vtexz * xa.z) + (w * (-(dot(xa, camerapos))));
