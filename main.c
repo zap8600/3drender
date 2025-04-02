@@ -8,9 +8,12 @@
 #define CNFG_IMPLEMENTATION
 #include "rawdraw_sf.h"
 
-void HandleKey( int keycode, int bDown ) { }
-void HandleButton( int x, int y, int button, int bDown ) { }
-void HandleMotion( int x, int y, int mask ) { }
+void HandleKey(int keycode, int bDown) {}
+void HandleButton(int x, int y, int button, int bDown) {}
+// Not sure how I use this to get mouse motion but I'll try
+void HandleMotion( int x, int y, int mask ) {
+    printf("%d %d %04x\n", x, y, mask);
+}
 int HandleDestroy() { return 0; }
 
 
@@ -103,8 +106,6 @@ float dot(vec3 v1, vec3 v2) {
 // Functions for reading models
 
 // Read an OBJ model and load it into memory
-// Texture coordinates and normal indices are read but not loaded and ignored in faces for now
-// Does not support quad faces yet
 // User has to free vertex and face arrays themselves
 int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, int* ofaceamt) {
     FILE* obj = fopen(filename, "rb");
@@ -232,7 +233,7 @@ int load_obj(const char* filename, vec3** vtexs, int* ovtexamt, face** faces, in
 
 const vec3 up = {0, 1, 0};
 const vec3 realmodelpos = {0, 0, 3};
-const vec3 camerapos = {0, 4, 0};
+vec3 camerapos = {0, 4, 0};
 
 int main(int argc, char **argv) {
     if(argc != 2) {
@@ -341,6 +342,9 @@ int main(int argc, char **argv) {
     }
 
     free(vtexs);
+    for(int i = 0; i < faceamt; i++) {
+        free(faces[i].vtexs);
+    }
     free(faces);
 
     return 0;
