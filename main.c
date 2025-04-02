@@ -264,6 +264,7 @@ int main(int argc, char **argv) {
     
     vec3 modelrotpos = {0, 0, 0};
 
+    printf("Loading model\n");
     load_obj(argv[1], &vtexs, &vtexamt, &faces, &faceamt); // TODO: return an error if this fails
     printf("%d faces\n", faceamt);
 
