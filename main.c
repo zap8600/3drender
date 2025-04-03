@@ -280,11 +280,11 @@ void HandleMotion(int x, int y, int mask) {
             float dx = ((float)(x - lastx)) / width;
             float dy = ((float)(y - lasty)) / height;
 
-            //vec3 right = norm(cross(norm(sub(realmodelpos,camerapos)),norm(cameraup)));
+            vec3 right = norm(cross(norm(sub(realmodelpos,camerapos)),norm(cameraup)));
 
             vec3 tpos = sub(realmodelpos, camerapos);
             tpos = rotb(tpos, norm(cameraup), PI*dx);
-            //tpos = rotb(tpos, right, PI*dx);
+            tpos = rotb(tpos, right, PI*dy);
             camerapos = sub(realmodelpos, tpos);
         }
 
@@ -365,7 +365,7 @@ int main(int argc, char **argv) {
             int* yps = (int*)malloc(faces[i].vtexamt * sizeof(int));
 
             for(int j = 0; j < faces[i].vtexamt; j++) {
-                vec3 cvtex = add(add(vtexs[faces[i].vtexs[j]], modelrotpos), realmodelpos);
+                vec3 cvtex = add(vtexs[faces[i].vtexs[j]], realmodelpos);
                 float vtexx = cvtex.x;
                 float vtexy = cvtex.y;
                 float vtexz = cvtex.z;
@@ -376,9 +376,9 @@ int main(int argc, char **argv) {
                 vec3 ya = cross(za, xa);
 
                 // Convert from world space to camera space
-                vtexx = (vtexx * xa.x) + (vtexy * xa.y) + (vtexz * xa.z) + (w * (-(dot(xa, camerapos))));
-                vtexy = (vtexx * ya.x) + (vtexy * ya.y) + (vtexz * ya.z) + (w * (-(dot(ya, camerapos))));
-                vtexz = (vtexx * za.x) + (vtexy * za.y) + (vtexz * za.z) + (w * (-(dot(za, camerapos))));
+                vtexx = (cvtex.x * xa.x) + (cvtex.y * xa.y) + (cvtex.z * xa.z) + (w * (-(dot(xa, camerapos))));
+                vtexy = (cvtex.x * ya.x) + (cvtex.y * ya.y) + (cvtex.z * ya.z) + (w * (-(dot(ya, camerapos))));
+                vtexz = (cvtex.x * za.x) + (cvtex.y * za.y) + (cvtex.z * za.z) + (w * (-(dot(za, camerapos))));
                 const float vz = vtexz;
 
                 // Convert from camera space to NDC
