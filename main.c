@@ -97,6 +97,39 @@ float dot(vec3 v1, vec3 v2) {
     return r;
 }
 
+// Scale a vector
+vec3 scale(vec3 v, float s) {
+    vec3 r = {v.x * s, v.y * s, v.z * s};
+    return r;
+}
+
+// Rotate a vector around an axis
+vec3 rotb(vec3 v, vec3 axis, float rad) {
+    vec3 r = v;
+    axis = norm(axis);
+
+    rad /= 2;
+    float a = sinf(rad);
+    float b = axis.x * a;
+    float c = axis.y * a;
+    float d = axis.z * a;
+    a = cosf(rad);
+    vec3 w = {b, c, d};
+
+    vec3 wv = cross(w, v);
+
+    vec3 wwv = cross(w, wv);
+
+    wv = scale(wv, 2 * a);
+
+    wwv = scale(wwv, 2);
+
+    r = add(r, wv);
+    r = add(r, wwv);
+
+    return r;
+}
+
 
 // Functions for reading models
 
@@ -227,9 +260,10 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
 }
 
 
-const vec3 up = {0, 1, 0};
 const vec3 realmodelpos = {0, 0, 3};
-vec3 camerapos = {0, 4, 0};
+
+vec3 cameraup = {0, 1, 0};
+vec3 camerapos = {0, 0, 0};
 
 float width = 512;
 float height = 512;
@@ -238,7 +272,7 @@ int lastx = 0;
 int lasty = 0;
 bool holding = false;
 
-void HandleMotion( int x, int y, int mask ) {
+void HandleMotion(int x, int y, int mask) {
     if(mask == 1) {
         if(!holding) {
             holding = true;
@@ -246,9 +280,12 @@ void HandleMotion( int x, int y, int mask ) {
             float dx = ((float)(x - lastx)) / width;
             float dy = ((float)(y - lasty)) / height;
 
-            vec3 tpos = sub(camerapos, realmodelpos);
-            tpos = rotx(tpos, (-PI)*dy);
-            camerapos = add(tpos, realmodelpos);
+            //vec3 right = norm(cross(norm(sub(realmodelpos,camerapos)),norm(cameraup)));
+
+            vec3 tpos = sub(realmodelpos, camerapos);
+            tpos = rotb(tpos, norm(cameraup), PI*dx);
+            //tpos = rotb(tpos, right, PI*dx);
+            camerapos = sub(realmodelpos, tpos);
         }
 
         lastx = x;
@@ -335,7 +372,7 @@ int main(int argc, char **argv) {
                 float w = 1;
 
                 vec3 za = norm(sub(camerapos, realmodelpos));
-                vec3 xa = norm(cross(up, za));
+                vec3 xa = norm(cross(cameraup, za));
                 vec3 ya = cross(za, xa);
 
                 // Convert from world space to camera space
@@ -359,20 +396,12 @@ int main(int argc, char **argv) {
 
                 xps[j] = xp;
                 yps[j] = yp;
-
-                if((faces[i].vtexs[j] + 1) == vtexamt) {
-                    CNFGColor(0x00ff00ff);
-                    CNFGTackPixel(xp, yp);
-                    CNFGColor(0xffffffff);
-                } else {
-                    CNFGTackPixel(xp, yp);
-                }
             }
 
             const int fvtexamt = faces[i].vtexamt;
             for(int j = 0; j < fvtexamt; j++) {
                 //CNFGTackPixel(xps[j], yps[j]);
-                //CNFGTackSegment(xps[j], yps[j], xps[(j + 1) % fvtexamt], yps[(j + 1) % fvtexamt]);
+                CNFGTackSegment(xps[j], yps[j], xps[(j + 1) % fvtexamt], yps[(j + 1) % fvtexamt]);
             }
 
             free(xps);
