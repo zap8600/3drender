@@ -35,12 +35,11 @@ typedef struct tcrd {
 } tcrd;
 
 typedef struct face {
-    int* vtexs;
-    int* tcrds;
-    int* nrmis;
-    int vtexamt;
-    int tcrdamt;
-    int nrmiamt;
+    int vtexs[3];
+    int tcrds[3];
+    int nrmis[3];
+    bool hastcrds;
+    bool hasnrmis;
 } face;
 
 // Functions for manipulating 3D points
@@ -270,19 +269,21 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
             {
                 fseek(obj, 1, SEEK_CUR);
 
-                faceamt++;
-                (*faces) = (face*)realloc((*faces), faceamt * sizeof(face));
-                (*faces)[faceamt - 1].vtexs = NULL; // Fix an error on Android that causes these to be seen as actual pointers
-                (*faces)[faceamt - 1].tcrds = NULL; // Which then get truncated and throws an error
+                int fvtexamt = 0; // TODO: ensure these values are the same
+                int ftcrdamt = 0;
+                int fnrmiamt = 0;
+
+                int* fvtexs = NULL;
+                int* ftcrds = NULL;
+                int* fnrmis = NULL;
 
                 char buf[100];
                 char* bufptr = buf;
-                int fvtexamt = 0; // TODO: ensure these values are the same
-                int ftcrdamt = 0;
                 bool stillvtex = true;
                 bool ftcrd = false;
                 bool fnrmi = false;
                 bool notcrd = false;
+                unsigned long ftcrdpos = 0;
                 while(stillvtex) {
                     while(1) {
                         int c = fgetc(obj);
@@ -290,8 +291,11 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
                         if(c == ' ') {
                             *bufptr = '\0';
                             break;
-                        } else if(!ftcrd && (c == '/')) {
-                            ftcrd = true;
+                        } else if(c == '/') {
+                            if(!ftcrd) {
+                                ftcrd = true;
+                            }
+                            tcrdpos = ftell(obj); 
                             *bufptr = '\0';
                             break;
                         } else if((c == '\n') || (c == EOF)) {
@@ -303,18 +307,26 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
                         }
                     }
                     fvtexamt++;
-                    (*faces)[faceamt - 1].vtexs = (int*)realloc((*faces)[faceamt - 1].vtexs, fvtexamt * sizeof(int));
+                    fvtexs = (int*)realloc(fvtexs, fvtexamt * sizeof(int));
                     int v = atoi(buf) - 1; // We need to subtract one because the obj vertex arra starts at 1 instead of 0
                     if(v >= vtexamt) {
                         fprintf(stderr, "vtexamt is %d, but index is %d\n", vtexamt, v);
                     }
-                    (*faces)[faceamt - 1].vtexs[fvtexamt - 1] = v;
                     bufptr = buf;
                     if(ftcrd) {
                         while(1) {
                             int c = fgetc(obj);
                             *bufptr++ = (char)c;
                             if(c == ' ') {
+                                *bufptr = '\0';
+                                break;
+                            } else if(c == '/') {
+                                if(!fnrmi) {
+                                    if((ftell(obj) - tcrdpos) == 1) {
+                                        notcrd = true;
+                                    }
+                                    fnrmi = true;
+                                }
                                 *bufptr = '\0';
                                 break;
                             } else if((c == '\n') || (c == EOF)) {
@@ -324,10 +336,6 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
                             }
                         }
                     }
-                    ftcrdamt++;
-                    (*faces)[faceamt - 1].tcrds = (int*)realloc((*faces)[faceamt - 1].tcrds, ftcrdamt * sizeof(int));
-                    int v = atoi(buf) - 1;
-                    (*faces)[faceamt - 1].tcrds[ftcrdamt - 1] = v;
                 }
                 (*faces)[faceamt - 1].vtexamt = fvtexamt;
                 (*faces)[faceamt - 1].tcrdamt = ftcrdamt;
