@@ -26,20 +26,9 @@ typedef struct vec3 {
 
 typedef vec3 vtex;
 
-typedef vtex nrmi;
-
-typedef struct tcrd {
-    float u;
-    float v;
-    float w;
-} tcrd;
-
 typedef struct face {
-    int vtexs[3];
-    int tcrds[3];
-    int nrmis[3];
-    bool hastcrds;
-    bool hasnrmis;
+    int* vtexs;
+    int vtexamt;
 } face;
 
 // Functions for manipulating 3D points
@@ -146,7 +135,7 @@ vec3 rotb(vec3 v, vec3 axis, float rad) {
 
 // Read an OBJ model and load it into memory
 // User has to free vertex and face arrays themselves
-int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, int* ofaceamt, tcrd** tcrds, int* otcrdamt, nrmi** nrmis, int* onrmiamt) {
+int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, int* ofaceamt) {
     FILE* obj = fopen(filename, "rb");
     if(obj == NULL) {
         fprintf(stderr, "Failed to open file %s!\n", filename);
@@ -156,8 +145,6 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
     int type;
     int vtexamt = 0;
     int faceamt = 0;
-    int tcrdamt = 0;
-    int nrmiamt = 0;
 
     while((type = fgetc(obj)) != EOF) {
         switch(type) {
@@ -165,8 +152,7 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
             {
                 type = fgetc(obj);
                 switch(type) {
-                    case ' ':
-                    {
+                    case ' ': {
                         vtexamt++;
                         (*vtexs) = (vtex*)realloc((*vtexs), vtexamt * sizeof(vtex));
 
@@ -191,67 +177,10 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
                         }
                         break;
                     }
-                    case 't':
-                    {
-                        fseek(obj, 1, SEEK_CUR);
-
-                        tcrdamt++;
-                        (*tcrds) = (tcrd*)realloc((*tcrds), tcrdamt * sizeof(tcrd));
-
-                        char buf[100];
-                        char* bufptr = buf;
-                        int vamts = 0;
-                        bool stillvs = true;
-                        while(stillvs) {
-                            while(1) {
-                                int c = fgetc(obj);
-                                *bufptr++ = (char)c;
-                                if(c == ' ') {
-                                    *bufptr = '\0';
-                                    break;
-                                } else if(c == '\n') {
-                                    stillvs = false;
-                                    *bufptr = '\0';
-                                    break;
-                                }
-                            }
-                            vamts++;
-                            float v = (float)atof(buf);
-                            switch(vamts) { // TODO: Throw error if it exceeds 3
-                                case 1: (*tcrds)[tcrdamt - 1].u = v; break;
-                                case 2: (*tcrds)[tcrdamt - 1].v = v; break;
-                                case 3: (*tcrds)[tcrdamt - 1].w = v; break;
-                            }
-                            bufptr = buf;
-                        }
-                        break;
-                    }
                     case 'n':
-                    {
-                        fseek(obj, 1, SEEK_CUR);
-
-                        nrmiamt++;
-                        (*nrmis) = (nrmi*)realloc((*nrmis), nrmiamt * sizeof(nrmi));
-
-                        char buf[100];
-                        char* bufptr = buf;
-                        for(int i = 0; i < 3; i++) {
-                            while(1) {
-                                int c = fgetc(obj);
-                                *bufptr++ = (char)c;
-                                if((c == ' ') || (c == '\n')) {
-                                    *bufptr = '\0';
-                                    break;
-                                }
-                            }
-                            float v = (float)atof(buf);
-                            switch(i) {
-                                case 0: (*nrmis)[nrmiamt - 1].x = v; break;
-                                case 1: (*nrmis)[nrmiamt - 1].y = v; break;
-                                case 2: (*nrmis)[nrmiamt - 1].z = v; break;
-                            }
-                            bufptr = buf;
-                        }
+                    case 't': {
+                        int c;
+                        while((c = fgetc(obj)) != '\n') {}
                         break;
                     }
                     default:
@@ -269,21 +198,14 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
             {
                 fseek(obj, 1, SEEK_CUR);
 
-                int fvtexamt = 0; // TODO: ensure these values are the same
-                int ftcrdamt = 0;
-                int fnrmiamt = 0;
-
-                int* fvtexs = NULL;
-                int* ftcrds = NULL;
-                int* fnrmis = NULL;
+                faceamt++;
+                (*faces) = (face*)realloc((*faces), faceamt * sizeof(face));
+                (*faces)[faceamt - 1].vtexs = NULL;
 
                 char buf[100];
                 char* bufptr = buf;
+                int fvtexamt = 0;
                 bool stillvtex = true;
-                bool ftcrd = false;
-                bool fnrmi = false;
-                bool notcrd = false;
-                unsigned long ftcrdpos = 0;
                 while(stillvtex) {
                     while(1) {
                         int c = fgetc(obj);
@@ -291,54 +213,22 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
                         if(c == ' ') {
                             *bufptr = '\0';
                             break;
-                        } else if(c == '/') {
-                            if(!ftcrd) {
-                                ftcrd = true;
-                            }
-                            tcrdpos = ftell(obj); 
-                            *bufptr = '\0';
-                            break;
                         } else if((c == '\n') || (c == EOF)) {
-                            if(!ftcrd) {
-                                stillvtex = false;
-                            }
+                            stillvtex = false;
                             *bufptr = '\0';
                             break;
                         }
                     }
                     fvtexamt++;
-                    fvtexs = (int*)realloc(fvtexs, fvtexamt * sizeof(int));
+                    (*faces)[faceamt - 1].vtexs = (int*)realloc((*faces)[faceamt - 1].vtexs, fvtexamt * sizeof(int));
                     int v = atoi(buf) - 1; // We need to subtract one because the obj vertex arra starts at 1 instead of 0
                     if(v >= vtexamt) {
                         fprintf(stderr, "vtexamt is %d, but index is %d\n", vtexamt, v);
                     }
+                    (*faces)[faceamt - 1].vtexs[fvtexamt - 1] = v;
                     bufptr = buf;
-                    if(ftcrd) {
-                        while(1) {
-                            int c = fgetc(obj);
-                            *bufptr++ = (char)c;
-                            if(c == ' ') {
-                                *bufptr = '\0';
-                                break;
-                            } else if(c == '/') {
-                                if(!fnrmi) {
-                                    if((ftell(obj) - tcrdpos) == 1) {
-                                        notcrd = true;
-                                    }
-                                    fnrmi = true;
-                                }
-                                *bufptr = '\0';
-                                break;
-                            } else if((c == '\n') || (c == EOF)) {
-                                stillvtex = false;
-                                *bufptr = '\0';
-                                break;
-                            }
-                        }
-                    }
                 }
                 (*faces)[faceamt - 1].vtexamt = fvtexamt;
-                (*faces)[faceamt - 1].tcrdamt = ftcrdamt;
                 break;
             }
             case '\n': continue;
@@ -361,11 +251,10 @@ int load_obj(const char* filename, vtex** vtexs, int* ovtexamt, face** faces, in
 
     fclose(obj);
 
-    printf("%d faces, %d vtexs, %d tcrds\n", vtexamt, faceamt, tcrdamt);
+    printf("%d faces, %d vtexs\n", vtexamt, faceamt);
 
     *ovtexamt = vtexamt;
     *ofaceamt = faceamt;
-    *otcrdamt = tcrdamt;
 
     return 1;
 }
@@ -391,11 +280,11 @@ void HandleMotion(int x, int y, int mask) {
             float dx = ((float)(x - lastx)) / width;
             float dy = ((float)(y - lasty)) / height;
 
-            //vec3 right = norm(cross(norm(sub(realmodelpos,camerapos)),norm(cameraup)));
+            vec3 right = norm(cross(norm(sub(realmodelpos,camerapos)),norm(cameraup)));
 
             vec3 tpos = sub(realmodelpos, camerapos);
             tpos = rotb(tpos, norm(cameraup), PI*dx);
-            //tpos = rotb(tpos, right, PI*dx);
+            tpos = rotb(tpos, right, PI*dy);
             camerapos = sub(realmodelpos, tpos);
         }
 
@@ -434,16 +323,10 @@ int main(int argc, char **argv) {
 
     face* faces = NULL;
     int faceamt;
-
-    tcrd* tcrds = NULL;
-    int tcrdamt;
-
-    nrmi* nrmis = NULL;
-    int nrmiamt;
     
     vec3 modelrotpos = {0, 0, 0};
 
-    load_obj(argv[1], &vtexs, &vtexamt, &faces, &faceamt, &tcrds, &tcrdamt, &nrmis, &nrmiamt); // TODO: return an error if this fails
+    load_obj(argv[1], &vtexs, &vtexamt, &faces, &faceamt); // TODO: return an error if this fails
 
     CNFGSetup("3D Renderer", (int)width, (int)height);
 
@@ -482,7 +365,7 @@ int main(int argc, char **argv) {
             int* yps = (int*)malloc(faces[i].vtexamt * sizeof(int));
 
             for(int j = 0; j < faces[i].vtexamt; j++) {
-                vec3 cvtex = add(add(vtexs[faces[i].vtexs[j]], modelrotpos), realmodelpos);
+                vec3 cvtex = add(vtexs[faces[i].vtexs[j]], realmodelpos);
                 float vtexx = cvtex.x;
                 float vtexy = cvtex.y;
                 float vtexz = cvtex.z;
@@ -493,9 +376,9 @@ int main(int argc, char **argv) {
                 vec3 ya = cross(za, xa);
 
                 // Convert from world space to camera space
-                vtexx = (vtexx * xa.x) + (vtexy * xa.y) + (vtexz * xa.z) + (w * (-(dot(xa, camerapos))));
-                vtexy = (vtexx * ya.x) + (vtexy * ya.y) + (vtexz * ya.z) + (w * (-(dot(ya, camerapos))));
-                vtexz = (vtexx * za.x) + (vtexy * za.y) + (vtexz * za.z) + (w * (-(dot(za, camerapos))));
+                vtexx = (cvtex.x * xa.x) + (cvtex.y * xa.y) + (cvtex.z * xa.z) + (w * (-(dot(xa, camerapos))));
+                vtexy = (cvtex.x * ya.x) + (cvtex.y * ya.y) + (cvtex.z * ya.z) + (w * (-(dot(ya, camerapos))));
+                vtexz = (cvtex.x * za.x) + (cvtex.y * za.y) + (cvtex.z * za.z) + (w * (-(dot(za, camerapos))));
                 const float vz = vtexz;
 
                 // Convert from camera space to NDC
